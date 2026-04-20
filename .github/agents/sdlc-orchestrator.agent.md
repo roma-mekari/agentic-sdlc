@@ -38,6 +38,8 @@ The Explorer returns a structured investigation report. Pass the relevant findin
 If the human selects **Approve**: proceed to the next stage.
 If the human selects **Refine**: collect the feedback text, re-invoke the same subagent with the feedback appended to its input, then surface the updated artifact and ask again. There is no cycle cap for human-driven refinements — iterate until the human approves.
 
+**After every Refine event**, trigger an Athena micro-reflection: invoke the `athena` subagent with `mode: micro` passing (1) the stage/agent name, (2) the human's feedback verbatim, and (3) a brief summary of what the agent originally produced. This runs in the background — do NOT block the workflow waiting for Athena's response. The micro-reflection captures what the feedback reveals about instruction gaps.
+
 Always display a clear summary of what the subagent produced (key decisions, artifact path, any assumptions or flags) **before** presenting the review gate, so the human has enough context to decide.
 
 ## Workflow
@@ -107,14 +109,20 @@ Delegate to the `qa-lead` subagent, passing the paths to REQUIREMENTS.md, PLAN.m
 - On **Approve** (even with APPROVED WITH NOTES): proceed to Stage 6.
 - On **Refine**: collect the human's feedback (in addition to QA blockers), re-invoke `implementor` with the combined feedback, then re-run `qa-lead`. Repeat until the human approves.
 
-#### Athena Auto-Trigger
+#### Athena Auto-Trigger (Full Report)
 
-Track the number of QA rejection → Implementor revision cycles. If the QA Lead has returned **REJECTED** and the Implementor has already completed **2 or more revision cycles** without resolving all blockers:
+Track the number of QA rejection → Implementor revision cycles. Invoke Athena for a **full report** (not micro-reflection) when ANY of these conditions are met:
 
-1. **Automatically invoke the `athena` subagent**, passing:
+**Condition 1 — Repeated QA failures:** The QA Lead has returned **REJECTED** and the Implementor has already completed **2 or more revision cycles** without resolving all blockers.
+
+**Condition 2 — Reflection accumulation:** The `docs/athena/reflections.jsonl` file contains **5 or more micro-reflections for the same agent** since the last full Athena report. Check this at the end of Stage 5.
+
+When triggering a full report:
+1. **Automatically invoke the `athena` subagent** with `mode: full`, passing:
    - The accumulated QA reports and rejection reasons
    - The Implementor's revision history (what was changed each cycle)
    - The original PLAN.md and REQUIREMENTS.md for context
+   - Path to `docs/athena/reflections.jsonl` for micro-reflection context
 2. **Surface Athena's report** to the human at the review gate, alongside the QA rejection.
 3. **Do NOT apply Athena's proposed instruction changes automatically.** Present them as recommendations for the human to review after the current task is resolved.
 4. Continue the normal Refine loop — the Athena report is informational, not blocking.
@@ -169,6 +177,8 @@ Execute the resolution plan from PR_FEEDBACK.md in order. For each resolution st
 5. **`QUESTION` items** → Surface to the human at the review gate. Collect answers before proceeding with any items that depended on the answer.
 
 **Human review gate after implementation fixes:** Show the list of changes made and which PR comments were addressed. Ask for approval.
+
+**Athena micro-reflection after PR feedback resolution:** After Stage 7c completes (regardless of approval outcome), trigger an Athena micro-reflection with `trigger: pr_feedback` passing (1) the PR_FEEDBACK.md classification summary, (2) the most significant `CODE_FIX` and `ARCH_CONCERN` items, and (3) which agents were re-invoked. This captures what the PR review revealed about agent output quality.
 
 #### Stage 7d — Re-verification
 
@@ -226,10 +236,11 @@ To prevent infinite loops and wasted cycles:
 
 ## Behavioral Self-Improvement
 
-After completing a full SDLC run (all 6 stages), reflect briefly:
+After completing a full SDLC run (all stages including PR lifecycle if executed), reflect briefly:
 - Did any stage take more revision cycles than expected?
 - Did the Explorer need to be invoked mid-workflow to fill gaps that should have been covered by `project-config.md` or the PO's requirements?
 - Were there recurring feedback patterns from the human?
+- How many Athena micro-reflections were logged during this run? If more than 3, suggest a full Athena report.
 
 If you notice systemic issues, inform the human and suggest invoking Athena for a post-run analysis. Do not attempt to rewrite agent instructions yourself.
 

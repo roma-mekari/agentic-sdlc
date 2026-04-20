@@ -3,8 +3,9 @@
 > **Location:** This file should be created at `docs/athena/YYYY-MM-DD-<slug>.md`  
 > **Analyzed by:** Athena Meta-Architect Agent  
 > **Date:** YYYY-MM-DD  
-> **Trigger:** [Manual | Auto-triggered after QA rejection cycle N]  
+> **Trigger:** [Manual | Auto-triggered after QA rejection cycle N | Auto-triggered after reflection accumulation (N reflections for agent X)]  
 > **Analyzed Run:** [Feature slug or description of the workflow run]  
+> **Micro-reflections consumed:** X entries from `docs/athena/reflections.jsonl`
 
 ---
 
@@ -29,6 +30,7 @@
 | Implementor | ✅ / ⚠️ / ❌ | ✅ / ⚠️ / ❌ | ✅ / ⚠️ / ❌ | X |
 | QA Lead | ✅ / ⚠️ / ❌ | ✅ / ⚠️ / ❌ | ✅ / ⚠️ / ❌ | X |
 | Tech Writer | ✅ / ⚠️ / ❌ | ✅ / ⚠️ / ❌ | ✅ / ⚠️ / ❌ | X |
+| PR Reviewer | ✅ / ⚠️ / ❌ | ✅ / ⚠️ / ❌ | ✅ / ⚠️ / ❌ | X |
 
 ---
 
@@ -116,6 +118,18 @@ _(If no self-improvement needed, state: "No self-improvement proposals. Current 
 - **Previous run score:** [if available]
 - **This run score:** [subjective 1-10 rating of workflow health]
 - **Trend:** Improving | Stable | Degrading
+
+---
+
+## 📝 Micro-Reflections Consumed
+
+> List the micro-reflection entries from `docs/athena/reflections.jsonl` that were analyzed and incorporated into this report. This allows the human to mark them as addressed.
+
+| Date | Agent | Signal Type | Feedback Summary | Incorporated Into |
+|------|-------|-------------|------------------|-------------------|
+| YYYY-MM-DD | [Agent] | [Type] | [Summary] | Issue #N above |
+
+> After applying the changes from this report, update the `applied` field in `reflections.jsonl` for these entries.
 
 ---
 

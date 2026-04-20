@@ -37,9 +37,9 @@ Every stage has a **human review gate** — the orchestrator pauses for approval
 | **Implementor** | Writes production-ready code following the approved plan | `.github/agents/implementor.agent.md` | No |
 | **QA Lead** | Verifies implementation against requirements and produces QA reports | `.github/agents/qa-lead.agent.md` | No |
 | **Tech Writer** | Produces the permanent Architectural Decision Record (ADR) | `.github/agents/tech-writer.agent.md` | No |
-| **PR Reviewer** | Classifies PR feedback and routes fixes to the right agent | `.github/agents/sdlc/pr-reviewer.agent.md` | No |
-| **Athena** | Meta-agent that analyzes workflow failures and proposes instruction improvements | `.github/agents/athena.agent.md` | Yes |
-| **Explorer** | Read-only codebase investigator for tracing code paths, mapping dependencies, and discovering patterns | `.github/agents/sdlc/explorer.agent.md` | Yes |
+| **PR Reviewer** | Classifies PR feedback and routes fixes to the right agent | `.github/agents/pr-reviewer.agent.md` | No |
+| **Athena** | Meta-agent that reflects on every feedback event and proposes workflow improvements | `.github/agents/athena.agent.md` | Yes |
+| **Explorer** | Read-only codebase investigator for tracing code paths, mapping dependencies, and discovering patterns | `.github/agents/explorer.agent.md` | Yes |
 
 ## Quick Start
 
@@ -90,22 +90,23 @@ After a run that felt inefficient or had repeated QA rejections, invoke Athena m
 
 Athena produces an advisory report with proposed instruction changes. Review and apply them manually.
 
+Athena also runs automatically as a **micro-reflection** after every human feedback refinement and PR feedback round — capturing what went wrong and why, so instruction quality improves continuously.
+
 ## Directory Structure
 
 ```
 .github/
-├── agents/                      # Agent definitions
+├── agents/                      # Agent definitions (flat — all files must be here for VS Code visibility)
+│   ├── sdlc-orchestrator.agent.md
+│   ├── po.agent.md
+│   ├── architect.agent.md
+│   ├── cto.agent.md
+│   ├── implementor.agent.md
+│   ├── qa-lead.agent.md
+│   ├── tech-writer.agent.md
+│   ├── pr-reviewer.agent.md
 │   ├── athena.agent.md
-│   └── sdlc/
-│       ├── sdlc-orchestrator.agent.md
-│       ├── po.agent.md
-│       ├── architect.agent.md
-│       ├── cto.agent.md
-│       ├── implementor.agent.md
-│       ├── qa-lead.agent.md
-│       ├── tech-writer.agent.md
-│       ├── pr-reviewer.agent.md
-│       └── explorer.agent.md
+│   └── explorer.agent.md
 ├── workflow_templates/          # Templates agents use to produce artifacts
 │   ├── REQUIREMENTS.md
 │   ├── PLAN.md
@@ -132,7 +133,9 @@ Athena is the continuous improvement meta-agent. It operates in two modes:
 
 **Manual trigger:** Invoke `@athena` anytime with a description of what went wrong. It reads the relevant artifacts and transcripts, diagnoses the root cause, and proposes targeted instruction changes.
 
-**Auto-trigger:** The orchestrator automatically invokes Athena when the QA Lead has rejected the implementation **2 or more times** in a single run. The report is surfaced to the human at the review gate alongside the QA rejection.
+**Auto-trigger (full report):** The orchestrator automatically invokes Athena for a full diagnostic when the QA Lead has rejected the implementation **2 or more times** in a single run.
+
+**Micro-reflections:** After every human feedback refinement or PR feedback round, the orchestrator invokes Athena for a lightweight reflection — capturing what the feedback revealed about gaps in the agent instructions. These micro-reflections accumulate in `docs/athena/reflections.jsonl` and inform future full reports.
 
 Athena is **advisory only** — it never edits agent files directly. All proposed changes are presented as before/after diffs for human review.
 
@@ -163,18 +166,17 @@ Directory layout after setup:
 ```
 your-repo/
 ├── .github/
-│   ├── agents/
+│   ├── agents/                  # All .agent.md files must be directly here
+│   │   ├── sdlc-orchestrator.agent.md
+│   │   ├── po.agent.md
+│   │   ├── architect.agent.md
+│   │   ├── cto.agent.md
+│   │   ├── implementor.agent.md
+│   │   ├── qa-lead.agent.md
+│   │   ├── tech-writer.agent.md
+│   │   ├── pr-reviewer.agent.md
 │   │   ├── athena.agent.md
-│   │   └── sdlc/
-│   │       ├── sdlc-orchestrator.agent.md
-│   │       ├── po.agent.md
-│   │       ├── architect.agent.md
-│   │       ├── cto.agent.md
-│   │       ├── implementor.agent.md
-│   │       ├── qa-lead.agent.md
-│   │       ├── tech-writer.agent.md
-│   │       ├── pr-reviewer.agent.md
-│   │       └── explorer.agent.md
+│   │   └── explorer.agent.md
 │   ├── workflow_templates/
 │   └── project-config.md       ← FILL THIS IN
 ├── docs/
