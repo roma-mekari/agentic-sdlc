@@ -1,0 +1,233 @@
+# 🧪 QA Verification Report
+
+> **Location:** This file should be created at `docs/adr/XXX-feature-name/QA_REPORT.md`  
+> **Tested by:** QA Lead Agent  
+> **Date:** YYYY-MM-DD  
+> **Feature:** [Feature Name]  
+> **Commit:** [commit-hash]  
+
+---
+
+## Executive Summary
+
+### Overall Verdict
+**Status:** ✅ APPROVED FOR COMMIT | ⚠️ APPROVED WITH NOTES | ❌ REJECTED
+
+**Quality Score:** XX/100
+
+**Summary:** [1-2 sentences about overall quality and readiness]
+
+---
+
+## 📋 Requirements Verification
+
+### Acceptance Criteria Check
+**Source:** REQUIREMENTS.md
+
+| # | Criteria | Status | Notes |
+|---|----------|--------|-------|
+| 1 | [Criterion description] | ✅ PASS | - |
+| 2 | [Criterion description] | ✅ PASS | - |
+| 3 | [Criterion description] | ⚠️ PARTIAL | [Issue] |
+| 4 | [Criterion description] | ❌ FAIL | [Issue] |
+
+**Total:** X/Y criteria passed (XX%)
+
+---
+
+## 🏗️ Plan Completion Verification
+
+### Implementation Steps Check
+**Source:** PLAN.md
+
+| Phase | Step | Status | Notes |
+|-------|------|--------|-------|
+| Phase 1 | Step 1.1 | ✅ Complete | - |
+| Phase 1 | Step 1.2 | ✅ Complete | - |
+| Phase 2 | Step 2.1 | ✅ Complete | - |
+| Phase 2 | Step 2.2 | ⚠️ Partial | [Issue] |
+
+**Total:** X/Y steps completed (XX%)
+
+---
+
+## 🧪 Testing Verification
+
+### Test Coverage
+```bash
+# Run the test command from project-config.md
+# e.g., go test ./... -cover | pytest --cov | npm test -- --coverage
+```
+
+**Results:**
+- **Total Packages Tested:** X
+- **Tests Passed:** X/Y
+- **Test Coverage:** XX%
+- **Target Coverage:** ≥80%
+- **Status:** ✅ PASS | ❌ FAIL
+
+### Test Categories
+
+#### Unit Tests
+- [ ] Core domain / business logic tests
+- [ ] Service / use case tests
+- [ ] Validation tests
+- [ ] Error handling tests
+- [ ] Edge case tests
+
+#### Integration Tests (if applicable)
+- [ ] Data access / repository tests
+- [ ] Boundary layer (handler/controller) HTTP tests
+- [ ] End-to-end workflow tests
+
+---
+
+## ✅ Quality Checks
+
+### Code Quality
+```bash
+```
+
+**Results:**
+
+### Build Verification
+```bash
+
+```
+
+**Results:**
+
+---
+
+## 🏛️ Architecture Compliance
+
+### Project Convention Adherence
+> Evaluate against the conventions defined in `.github/project-config.md`.
+
+#### Layer Separation
+
+#### Error Handling
+
+#### Code Conventions
+
+#### Database Operations
+
+#### Handler Organization
+
+---
+
+## 🔒 Security Verification
+
+### Security Checklist
+
+---
+
+## 🐛 Defects Found
+
+### Critical Issues
+**Count:** X
+
+1. **[Issue Title]**
+   - **Severity:** Critical
+   - **Location:** `file.go:123`
+   - **Description:** [What is wrong]
+   - **Impact:** [Why it matters]
+   - **Recommendation:** [How to fix]
+
+### High Priority Issues
+**Count:** X
+
+1. **[Issue Title]**
+   - **Severity:** High
+   - **Location:** `file.go:456`
+   - **Description:** [What is wrong]
+   - **Impact:** [Why it matters]
+   - **Recommendation:** [How to fix]
+
+### Medium Priority Issues
+**Count:** X
+
+1. **[Issue Title]**
+   - **Severity:** Medium
+   - **Location:** `file.go:789`
+   - **Description:** [What is wrong]
+   - **Impact:** [Why it matters]
+   - **Recommendation:** [How to fix]
+
+### Low Priority / Suggestions
+**Count:** X
+
+1. **[Suggestion]**
+   - **Location:** `file.go:101`
+   - **Description:** [What could be improved]
+   - **Benefit:** [Why it would help]
+
+---
+
+## 📊 Quality Metrics Summary
+
+| Metric | Target | Actual | Status |
+|--------|--------|--------|--------|
+| Test Coverage | ≥80% | XX% | ✅/❌ |
+| Requirements Met | 100% | XX% | ✅/❌ |
+| Plan Steps Completed | 100% | XX% | ✅/❌ |
+| Critical Issues | 0 | X | ✅/❌ |
+| Quality Checks | Pass | Pass/Fail | ✅/❌ |
+| Build Status | Success | Success/Fail | ✅/❌ |
+
+---
+
+## 🎯 Recommendations
+
+### Must Fix (Before Commit)
+1. [Critical issue that blocks commit]
+2. [Critical issue that blocks commit]
+
+### Should Fix (High Priority)
+1. [Important but not blocking]
+2. [Important but not blocking]
+
+### Could Fix (Nice to Have)
+1. [Optimization or enhancement]
+2. [Optimization or enhancement]
+
+---
+
+## ✅ Final Checklist
+
+Before requesting Human commit:
+
+### Code Quality
+- [ ] All critical and high-priority issues resolved
+- [ ] Code follows project conventions (per `project-config.md`)
+- [ ] No security vulnerabilities
+- [ ] Quality checks pass
+
+### Testing
+- [ ] All tests passing
+- [ ] Coverage meets or exceeds target
+- [ ] Edge cases tested
+- [ ] Error scenarios tested
+
+### Documentation
+- [ ] Code comments explain WHY
+- [ ] Public APIs documented
+- [ ] PLAN.md steps marked complete
+- [ ] README updated (if needed)
+
+---
+
+## 📝 QA Notes
+
+[Any additional observations, concerns, or recommendations]
+
+---
+
+**Next Step:** 
+- If ✅ APPROVED: QA Lead requests Human to review and commit
+- If ❌ REJECTED: Return to Implementor with must-fix list
+- If ⚠️ APPROVED WITH NOTES: Proceed with commit, address notes in follow-up
+
+---
+
+*QA Report generated by QA Lead Agent following the SDLC workflow.*
