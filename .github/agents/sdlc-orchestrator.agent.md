@@ -30,7 +30,7 @@ The Explorer returns a structured investigation report. Pass the relevant findin
 
 ## Human Review Gates
 
-**After every stage completes**, you MUST pause and ask the human to review the output before proceeding. Use the `vscode_askQuestions` tool with these two questions every time:
+**After every stage completes**, you MUST pause and ask the human to review the output before proceeding. Use the `vscode/askQuestions` tool with these two questions every time:
 
 1. **Decision** (options: `Approve — continue to next stage` / `Refine — I have feedback`): "Review the artifact above. Approve to proceed, or choose Refine to send feedback back to the subagent."
 2. **Feedback** (free text, only shown if Refine is selected — achieved by always asking but noting it's only required if refining): "What should the subagent change? Be specific."
@@ -52,7 +52,7 @@ Before delegating to any subagent, establish the project context:
 2. **If the file does not exist**, delegate to the `explorer` subagent with the goal: "Analyze this codebase to determine: primary language and version, framework, architecture pattern, layer ordering, build/test/lint commands, error handling patterns, and code conventions. Check for configuration files (package.json, go.mod, pyproject.toml, Makefile, etc.) and sample representative source files." Use the Explorer's findings as the project context.
 3. **Pass this context** to every subagent invocation as part of the input, so subagents do not need to re-read the config independently.
 
-This stage has **no human review gate** — it is automatic. If `project-config.md` is missing and the Explorer cannot determine the project stack, ask the human using `vscode_askQuestions` before proceeding.
+This stage has **no human review gate** — it is automatic. If `project-config.md` is missing and the Explorer cannot determine the project stack, ask the human using `vscode/askQuestions` before proceeding.
 
 ### Stage 1 — Requirements (PO)
 

@@ -1,4 +1,4 @@
-# Agentic SDLC Workshop
+# Agentic SDLC Workflow
 
 An autonomous software development lifecycle (SDLC) powered by specialized AI agents running in VS Code Copilot agent mode. A single orchestrator drives features from raw idea to QA-verified, documented code.
 
