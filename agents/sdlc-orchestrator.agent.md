@@ -1,7 +1,7 @@
 ---
 name: "SDLC Orchestrator"
 description: "The primary entry point for autonomous end-to-end feature development. Drives a feature from raw idea to committed, QA-verified code with full documentation, including PR feedback resolution. Delegates to specialized subagents: PO (requirements), Architect (plan), CTO (plan review), Implementor (code), QA Lead (verification), Tech Writer (ADR), PR Reviewer (PR feedback triage), Athena (continuous improvement), and Explorer (codebase investigation). Supports re-entry for processing PR review comments after the initial run."
-tools: [agent, todo, read, edit, search, vscode/askQuestions]
+tools: [vscode/getProjectSetupInfo, vscode/installExtension, vscode/memory, vscode/newWorkspace, vscode/resolveMemoryFileUri, vscode/runCommand, vscode/vscodeAPI, vscode/extensions, vscode/askQuestions, execute/runNotebookCell, execute/testFailure, execute/getTerminalOutput, execute/killTerminal, execute/sendToTerminal, execute/createAndRunTask, execute/runInTerminal, execute/runTests, read/getNotebookSummary, read/problems, read/readFile, read/viewImage, read/terminalSelection, read/terminalLastCommand, agent/runSubagent, edit/createDirectory, edit/createFile, edit/createJupyterNotebook, edit/editFiles, edit/editNotebook, edit/rename, search/changes, search/codebase, search/fileSearch, search/listDirectory, search/textSearch, search/searchSubagent, search/usages, web/fetch, web/githubRepo, browser/openBrowserPage, context7-mcp/get-library-docs, context7-mcp/resolve-library-id, todo]
 argument-hint: "Describe the feature or task to build, and optionally provide a PRD or OpenAPI spec link."
 user-invocable: true
 agents: [po, architect, cto, implementor, qa-lead, tech-writer, athena, explorer, pr-reviewer]

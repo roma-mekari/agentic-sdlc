@@ -59,7 +59,7 @@ _(Repeat the above structure for each issue)_
 
 **Severity:** CRITICAL | HIGH | MEDIUM | LOW
 
-**File:** `.github/agents/[agent-name].agent.md`
+**File:** `agents/[agent-name].agent.md`
 
 **Before:**
 ```markdown
@@ -88,7 +88,7 @@ _(Repeat the above structure for each proposed change)_
 
 ### Proposed self-improvement
 
-**File:** `.github/agents/athena.agent.md`
+**File:** `agents/athena.agent.md`
 
 **Before:**
 ```markdown

@@ -1,0 +1,10 @@
+{
+  "name": "agentic-sdlc",
+  "description": "Autonomous SDLC workflow powered by specialized AI agents. Drives features from raw idea to QA-verified, documented code with PR feedback integration. Includes orchestrator, PO, architect, CTO, implementor, QA lead, tech writer, PR reviewer, explorer, and Athena (continuous improvement) agents.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Mekari Engineering"
+  },
+  "agents": "agents/",
+  "skills": "skills/"
+}
