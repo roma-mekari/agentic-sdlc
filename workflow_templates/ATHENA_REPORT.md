@@ -121,7 +121,52 @@ _(If no self-improvement needed, state: "No self-improvement proposals. Current 
 
 ---
 
-## 📝 Micro-Reflections Consumed
+## � Session Analysis (Session Analysis Mode Only)
+
+> Include this section only when analyzing an exported chat session. Remove if not applicable.
+
+### Delegation Audit Summary
+
+| Metric | Count |
+|--------|-------|
+| Total actions in session | X |
+| Correct delegations (`runSubagent` used) | X |
+| Missing delegations (should have delegated) | X |
+| Skipped human review gates | X |
+| VIOLATION trace entries | X |
+
+### Action-by-Action Breakdown
+
+| # | Action | Tool Used | Classification | Expected Agent | Notes |
+|---|--------|-----------|----------------|----------------|-------|
+| 1 | [Description] | [Tool] | CORRECT_DELEGATION / MISSING_DELEGATION / SKIPPED_GATE | [Agent] | [Brief note] |
+
+### Thinking Trace Violations
+
+> These are the highest-signal findings — moments where the model explicitly decided to bypass delegation.
+
+#### Violation 1: [Description]
+
+**Thinking trace quote:**
+> "[Exact quote from the model's thinking that shows the bypass decision]"
+
+**Expected behavior:** [What the orchestrator should have done instead]
+**Root cause in instructions:** [Which instruction was too weak to prevent this]
+
+### Workflow Stage Compliance
+
+| Stage | Expected | Actual | Status |
+|-------|----------|--------|--------|
+| Stage 0: Context Discovery | Delegate to `explorer` | [What actually happened] | ✅ / ❌ |
+| Stage 1: Requirements | Delegate to `po` | [What actually happened] | ✅ / ❌ |
+| Stage 2: Architecture | Delegate to `architect` + `cto` | [What actually happened] | ✅ / ❌ |
+| Stage 3: Implementation | Delegate to `implementor` + `qa-lead` | [What actually happened] | ✅ / ❌ |
+| Human review gates | Present after each stage | [What actually happened] | ✅ / ❌ |
+| Trace logging | Maintain TRACE.jsonl | [What actually happened] | ✅ / ❌ |
+
+---
+
+## �📝 Micro-Reflections Consumed
 
 > List the micro-reflection entries from `docs/athena/reflections.jsonl` that were analyzed and incorporated into this report. This allows the human to mark them as addressed.
 
