@@ -134,29 +134,26 @@ This is the most powerful diagnostic mode. It analyzes what actually happened du
 
 **Process:**
 
-#### Step 1 — Parse the Session
-1. Read the chat.json file.
-2. Extract the sequence of actions taken:
-   - Tool calls made (which tools, on which files)
-   - Thinking traces (what the agent was reasoning about)
-   - Subagent invocations (if any)
-   - Human interactions (questions asked, feedback given)
-   - Files read, edited, created
-   - Terminal commands executed
-   - Artifacts produced
+#### Step 1 — Parse the Session Using the `parse-session` Skill
 
-#### Step 2 — Delegation Audit
-For each action in the session, classify it:
-- **CORRECT_DELEGATION**: Action was delegated to the right subagent via `runSubagent`
-- **MISSING_DELEGATION**: Action should have been delegated but was done directly
-- **WRONG_AGENT**: Action was delegated to the wrong subagent
-- **CORRECT_COORDINATOR_ACTION**: Action was appropriate for the orchestrator (reading templates, presenting gates, logging traces)
-- **SKIPPED_GATE**: A human review gate was expected but not presented
+**Do NOT parse chat.json manually.** Use the `parse-session` skill to produce a `SESSION_DIGEST.md` first. The skill understands the VS Code Copilot chat export schema and will extract:
+- Action timeline (chronological sequence of all tool calls, thinking blocks, and responses)
+- Tool call inventory (grouped by category: READ, SEARCH, EDIT, EXECUTE, DELEGATE, HUMAN_GATE, COORDINATE)
+- Thinking trace highlights (moments where the agent explicitly bypassed delegation)
+- Delegation audit (each action classified as CORRECT_DELEGATION, MISSING_DELEGATION, CORRECT_COORDINATOR, or SKIPPED_GATE)
+- File interaction map (all files read, edited, created, searched)
+- Session metadata (agent/mode, model, timing, tokens, attached files)
 
-Count and categorize all violations.
+Read the `parse-session` skill at `skills/parse-session/SKILL.md` and follow its instructions to produce the digest. Then use the digest as your primary input for the analysis steps below.
+
+#### Step 2 — Analyze the Delegation Audit
+Using the delegation audit from the digest:
+- Count violations by category
+- Identify the most severe violations (MISSING_DELEGATION on code edits > MISSING_DELEGATION on code reads > SKIPPED_GATE)
+- For each MISSING_DELEGATION, determine which subagent should have been invoked
 
 #### Step 3 — Workflow Compliance Check
-Map the session actions against the expected workflow stages:
+Map the digest's action timeline against the expected workflow stages:
 - Was Stage 0 (Context Discovery) performed via explorer?
 - Was Stage 1 (Requirements) performed via PO?
 - Was Stage 2 (Architecture) performed via architect + CTO?
@@ -165,24 +162,37 @@ Map the session actions against the expected workflow stages:
 - Was TRACE.jsonl maintained?
 - Were artifacts saved to the correct locations?
 
+**Bug-fix fast-track awareness:** The orchestrator may legitimately skip PO/Architect/CTO stages for pure bug-fix tasks (no new features, no architectural changes). If stages were skipped, check:
+- Did the orchestrator explicitly acknowledge the skip in its response text?
+- Was a human review gate still presented before implementation?
+- Was QA Lead still invoked post-implementation? (QA Lead should NEVER be skipped, even for bug fixes)
+- Was the skipped-stage rationale logged in TRACE.jsonl?
+
+Classify stage skips as `JUSTIFIED_SKIP` (bug fix, acknowledged) or `UNJUSTIFIED_SKIP` (feature work, or no acknowledgment).
+
+**Post-implementation verification pattern:** A common violation is the orchestrator reading source code files AFTER an Implementor subagent returns, to "verify" the changes. This is a MISSING_DELEGATION — verification should be delegated to QA Lead. Flag any `copilot_readFile` calls on application source code that occur AFTER a `runSubagent(Implementor)` returns.
+
 #### Step 4 — Thinking Trace Analysis
-If thinking traces are available in the session:
-- Look for moments where the agent **explicitly decided to skip delegation** (e.g., "I should just do this directly" or "I'll dive into the code myself")
+Using the thinking trace highlights from the digest:
+- Identify moments where the agent **explicitly decided to skip delegation** (look for BYPASS_DECISION and WORKFLOW_SKIP signals)
 - These are the highest-signal findings — they reveal where instructions were too weak to override the model's default behavior
-- Quote the exact thinking trace that shows the violation
+- Quote the exact thinking trace text from the digest
+- Cross-reference with the delegation audit: does each thinking bypass correspond to a MISSING_DELEGATION action?
 
 #### Step 5 — Root Cause Attribution
 For each violation found, attribute it to a specific weakness in the agent instructions:
-- Which instruction was violated?
-- What wording would have prevented the violation?
-- Is this a new failure mode or a repeat of a known issue?
+- Read the agent's `.agent.md` file to find the relevant instruction
+- Quote the instruction that was violated (or note its absence)
+- Propose specific wording that would have prevented the violation
+- Is this a new failure mode or a repeat of a known issue? Check `docs/athena/reflections.jsonl`
 
 #### Step 6 — Generate Report
-Write the report to `docs/athena/session-analysis/YYYY-MM-DD-<slug>.md` using the ATHENA_REPORT.md template, with the additional "Session Analysis" sections.
+Write the report to `docs/athena/session-analysis/YYYY-MM-DD-<slug>.md` using the ATHENA_REPORT.md template, with the additional "Session Analysis" sections. Include the path to the SESSION_DIGEST.md as a reference.
 
 **Output:**
 ```
 SESSION ANALYSIS complete: docs/athena/session-analysis/YYYY-MM-DD-<slug>.md
+Session digest: <path to SESSION_DIGEST.md>
 Session health: COMPLIANT | NON-COMPLIANT | CRITICAL_FAILURE
 Total actions: X
   Correct delegations: Y
@@ -284,6 +294,8 @@ Write the report using the `.github/workflow_templates/ATHENA_REPORT.md` templat
 - **Micro-reflections are fast.** Do not over-analyze during micro mode. Capture the signal and move on.
 - **Prioritize delegation failures.** The orchestrator doing work itself is the #1 failure mode. Always check for this first in any analysis.
 - **Quote evidence.** When reporting violations, quote the exact tool call, thinking trace, or action that demonstrates the issue.
+- **Track TRACE.jsonl compliance.** The orchestrator is required to create and maintain TRACE.jsonl for every run. Missing trace logs indicate the orchestrator is ignoring its observability protocol. This is a HIGH severity issue because it makes post-run analysis impossible.
+- **Distinguish orchestrator vs. subagent actions.** In chat.json exports, tool calls made by subagents have a `subAgentInvocationId` field linking them to the parent `runSubagent` call. Tool calls WITHOUT this field are orchestrator-level actions and are subject to delegation audit. Tool calls WITH this field are subagent-internal and should NOT be flagged as violations.
 
 ## Output (Full Report / Session Analysis)
 

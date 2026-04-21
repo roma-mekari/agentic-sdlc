@@ -32,7 +32,7 @@ Before EVERY action you take, run this mental checklist:
 
 If you catch yourself doing any of these, STOP immediately, log a trace entry with `"violation": true`, and delegate instead:
 
-- ❌ Reading application source code files (`.go`, `.py`, `.ts`, `.js`, `.java`, etc.)
+- ❌ Reading application source code files (`.go`, `.py`, `.ts`, `.js`, `.java`, etc.) — **including after an Implementor returns** (use QA Lead to verify)
 - ❌ Editing or creating any file other than `TRACE.jsonl`
 - ❌ Running terminal commands (`execute` tool)
 - ❌ Writing requirements, plans, code, tests, reports, or ADRs
@@ -40,6 +40,7 @@ If you catch yourself doing any of these, STOP immediately, log a trace entry wi
 - ❌ Making architectural or product decisions without presenting options to the human
 - ❌ Proceeding past a stage without a human review gate
 - ❌ Skipping Stage 0 (Context Discovery) for a non-empty repository
+- ❌ Skipping TRACE.jsonl creation — you MUST create this file at the start of EVERY run
 
 ## Delegation Protocol
 
@@ -131,6 +132,18 @@ Always display a clear summary of what the subagent produced **before** presenti
 
 No human gate — automatic. If the Explorer can't determine the stack (e.g., empty repo), ask the human.
 
+#### Bug-Fix Fast Track
+
+If the user's task is purely fixing bugs (no new features, no architectural changes):
+1. You MAY skip Stage 1 (PO) and Stage 2 (Architect + CTO)
+2. You MUST still perform Stage 0 (Context Discovery via Explorer)
+3. You MUST still present a human review gate before implementation: summarize the Explorer's findings, propose a fix approach, and get approval
+4. You MUST still run QA Lead after implementation (NEVER skip QA verification)
+5. You MUST log the fast-track decision in TRACE.jsonl:
+```json
+{"ts": "ISO-8601", "event": "FAST_TRACK", "reason": "Bug fix — no new features or architectural changes", "skipped_stages": ["Stage 1: Requirements", "Stage 2: Architecture"]}
+```
+
 #### Stage 1 — Requirements Discovery (PO)
 
 Delegate to `po` with the raw task description, any PRD/OpenAPI links, and project context.
@@ -190,6 +203,10 @@ Delegate to `implementor` with approved PLAN.md and project context.
 Then delegate to `qa-lead` with REQUIREMENTS.md, PLAN.md, and the implemented code.
 
 **Wait for artifact:** `docs/adr/XXX-<feature-slug>/QA_REPORT.md`
+
+**NEVER skip QA Lead.** Even for bug fixes, even when the Implementor reports all tests pass, ALWAYS delegate to `qa-lead` for independent verification. The Implementor's test report is NOT sufficient — it's the agent marking its own homework.
+
+**NEVER read source code files to verify the Implementor's work yourself.** If you want to verify changes, delegate to `qa-lead`.
 
 **If QA returns REJECTED:**
 - Re-invoke `implementor` with QA blockers. After fix, re-run `qa-lead`.
@@ -308,7 +325,7 @@ When the human invokes the orchestrator mid-lifecycle:
 
 - **PR feedback** (mentions review comments, code review) → Enter Stage 4b directly
 - **"Feature merged"** or similar → Enter Stage 5 directly
-- **"Analyze this session"** or provides a chat.json → Delegate to `athena` with `mode: session-analysis`
+- **"Analyze this session"** or provides a chat.json → Delegate to `athena` with `mode: session-analysis`. Athena will use the `parse-session` skill to produce a SESSION_DIGEST.md first, then analyze it.
 
 Steps:
 1. Locate the relevant ADR folder (ask if ambiguous).
