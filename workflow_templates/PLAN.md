@@ -24,7 +24,7 @@ Date: YYYY-MM-DD
 
 ## 2. The Implementation Plan
 
-> **Note:** The phases below are examples based on a layered architecture. Adapt phase names, ordering, and count to match the architecture pattern defined in `.github/project-config.md`.
+> **Note:** The phases below are examples based on a layered architecture. Adapt phase names, ordering, and count to match the project's architecture pattern.
 
 ### Phase 1: Data Layer
 **Goal:** Define and migrate data structures (schemas, models, migrations)

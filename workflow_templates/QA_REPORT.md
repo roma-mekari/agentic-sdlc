@@ -55,7 +55,7 @@
 
 ### Test Coverage
 ```bash
-# Run the test command from project-config.md
+# Run the project's test command
 # e.g., go test ./... -cover | pytest --cov | npm test -- --coverage
 ```
 
@@ -102,7 +102,7 @@
 ## 🏛️ Architecture Compliance
 
 ### Project Convention Adherence
-> Evaluate against the conventions defined in `.github/project-config.md`.
+> Evaluate against the project's established conventions.
 
 #### Layer Separation
 
@@ -199,7 +199,7 @@ Before requesting Human commit:
 
 ### Code Quality
 - [ ] All critical and high-priority issues resolved
-- [ ] Code follows project conventions (per `project-config.md`)
+- [ ] Code follows project conventions
 - [ ] No security vulnerabilities
 - [ ] Quality checks pass
 

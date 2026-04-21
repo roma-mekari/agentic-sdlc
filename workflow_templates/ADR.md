@@ -89,7 +89,7 @@
 - ✅ Requirement category 3: X/Y criteria met
 
 ### Architecture Compliance
-- ✅ Project architecture pattern followed (per `project-config.md`)
+- ✅ Project architecture pattern followed
 - ✅ Code conventions adhered to
 - ✅ Security best practices implemented
 - ✅ Error handling follows project standards
@@ -109,7 +109,7 @@
 - **Commit:** `[commit-hash]`
 
 **Related Documentation:**
-- **Project Configuration:** [project-config.md](../../.github/project-config.md)
+- **REQUIREMENTS.md:** [Link to requirements](./XXX-feature-name/REQUIREMENTS.md)
 - **Related ADRs:** [ADR-YYY](./YYY-related-feature.md)
 
 ---

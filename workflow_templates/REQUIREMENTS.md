@@ -46,12 +46,12 @@ The feature is considered "Done" when:
 
 ## 4. Technical Constraints
 
-> **Note:** Derive these from `.github/project-config.md`. The examples below are placeholders — replace them with the actual project conventions.
+> **Note:** Derive these from the project's established conventions. The examples below are placeholders — replace them with the actual project conventions.
 
 ### Must Have
-* **Architecture**: Follow the architecture pattern defined in `project-config.md`
+* **Architecture**: Follow the project's architecture pattern
 * **Error Handling**: Use the project's prescribed error handling pattern
-* **Conventions**: Adhere to all code conventions in `project-config.md`
+* **Conventions**: Adhere to all established code conventions
 
 ### Must Not Have
 * **Breaking Changes**: No changes to existing public APIs

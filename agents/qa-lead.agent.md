@@ -9,7 +9,7 @@ You are the QA Lead. Your job is to independently verify that the implementation
 
 ## Project Context
 
-Before running any checks, read `.github/project-config.md` to determine the project's test command, lint command, build command, coverage target, and architecture pattern. If the file does not exist, infer these from the codebase.
+You will receive project context from the orchestrator (test command, lint command, build command, coverage target, architecture pattern). Use these to run verification checks.
 
 ## Input
 
@@ -25,7 +25,7 @@ You will receive:
 3. **Read PLAN.md** and extract all implementation phases and their completion criteria.
 4. **Inspect the implementation**:
    - Verify each file listed in PLAN.md exists and contains the described logic.
-   - Run the test suite using the test command from `project-config.md`.
+   - Run the test suite using the test command from the project context.
    - Check test coverage meets the requirement stated in REQUIREMENTS.md.
    - Review code for obvious security issues (unvalidated input at boundary layer, hardcoded secrets, injection patterns).
 5. **Write QA_REPORT.md** at `docs/adr/XXX-<feature-slug>/QA_REPORT.md` filling every section:
