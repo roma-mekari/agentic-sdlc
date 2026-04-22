@@ -73,11 +73,11 @@
 
 ### Out of Scope (`OUT_OF_SCOPE`)
 
-> These comments are valid but belong to a separate feature or follow-up ticket.
+> These comments are valid but belong to a separate feature or follow-up ticket. Each item includes priority and consequences to ensure nothing falls through the cracks. These will be forwarded to the ADR's "Deferred Items" section.
 
-| # | Comment | Reasoning | Follow-up Action |
-|---|---------|-----------|------------------|
-| 1 | [Verbatim comment] | [Why it's out of scope] | [e.g., "Create ticket for..."] |
+| # | Comment | Reasoning | Priority | Impact if Not Addressed | Follow-up Action |
+|---|---------|-----------|----------|------------------------|------------------|
+| 1 | [Verbatim comment] | [Why it's out of scope] | High/Medium/Low | [What happens if not picked up — technical debt, risk, etc.] | [e.g., "Create ticket for..."] |
 
 ---
 

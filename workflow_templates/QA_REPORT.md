@@ -122,7 +122,33 @@
 
 ---
 
-## 🐛 Defects Found
+## � Plan Drift Detection
+
+> Compare the implemented code against PLAN.md. Note any deviations — added steps, skipped steps, or changes made during implementation or manual editing that diverge from the plan.
+
+### Deviations from Plan
+
+| # | Plan Step | Expected | Actual | Reason |
+|---|-----------|----------|--------|--------|
+| 1 | [Step reference] | [What the plan said] | [What was actually implemented] | [Why it diverged — human edit, PR feedback, implementation constraint] |
+
+**Drift severity:** None | Minor (cosmetic/naming) | Moderate (different approach, same outcome) | Major (different behavior)
+
+> If drift is **Major**, flag it for the Tech Writer to document in the ADR.
+
+---
+
+## 📋 Deferred & Out-of-Scope Items
+
+> Items identified during QA that are valid but not in scope for this iteration. These will be forwarded to the ADR's "Deferred Items" section.
+
+| # | Item | Priority | Impact if Not Addressed | Source |
+|---|------|----------|------------------------|--------|
+| 1 | [Description] | High/Medium/Low | [What happens if not picked up] | QA observation / PR feedback |
+
+---
+
+## �🐛 Defects Found
 
 ### Critical Issues
 **Count:** X

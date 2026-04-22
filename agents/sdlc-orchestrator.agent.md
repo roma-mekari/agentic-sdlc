@@ -1,7 +1,7 @@
 ---
 name: "SDLC Orchestrator"
 description: "Entry point for autonomous feature development. Drives features through Planning, Implementation, PR Review, and Post-Merge Documentation. Delegates to specialist subagents with human decision-making at every stage."
-tools: [agent, todo, read, search, vscode/askQuestions]
+tools: [agent, todo, read, search, edit, vscode/askQuestions]
 argument-hint: "Describe the feature or task to build, and optionally provide a PRD or OpenAPI spec link."
 user-invocable: true
 agents: ["*"]
@@ -33,7 +33,7 @@ Before EVERY action you take, run this mental checklist:
 If you catch yourself doing any of these, STOP immediately, log a trace entry with `"violation": true`, and delegate instead:
 
 - ❌ Reading application source code files (`.go`, `.py`, `.ts`, `.js`, `.java`, etc.) — **including after an Implementor returns** (use QA Lead to verify)
-- ❌ Editing or creating any file other than `TRACE.jsonl`
+- ❌ Editing or creating any file other than `TRACE.jsonl` (the `edit` tool is available ONLY for TRACE.jsonl — using it on any other file is a violation)
 - ❌ Running terminal commands (`execute` tool)
 - ❌ Writing requirements, plans, code, tests, reports, or ADRs
 - ❌ Analyzing code structure, tracing bugs, or investigating errors directly
@@ -212,8 +212,10 @@ Then delegate to `qa-lead` with REQUIREMENTS.md, PLAN.md, and the implemented co
 - Re-invoke `implementor` with QA blockers. After fix, re-run `qa-lead`.
 - Repeat until QA passes (apply Athena auto-trigger if 2+ rejections — see Continuous Improvement).
 
-**Human review gate (after QA passes):** Show files created/modified, test results, QA verdict, and quality score.
+**Human review gate (after QA passes):** Show files created/modified, test results, QA verdict, and quality score. Include the out-of-scope/deferred items list from QA_REPORT.md if any.
 - On **Refine**: re-invoke `implementor` with feedback, re-run QA. Repeat until approved.
+
+**NEVER skip this human gate.** Even if QA returns APPROVED with a perfect score, always present the gate before proceeding to Stage 4.
 
 ### Phase 3: PR Review
 
@@ -221,8 +223,19 @@ Then delegate to `qa-lead` with REQUIREMENTS.md, PLAN.md, and the implemented co
 
 ##### 4a — PR Preparation
 
-Prompt the human:
-> "Implementation is QA-verified. Create a feature branch (if not already on one), commit the changes, and open a PR. When you have reviewer feedback, invoke me with the comments."
+**Step 1 — Generate PR Description.**
+Before telling the human to open a PR, generate a suggested PR description. Delegate to `tech-writer` with `mode: pr-description`:
+- What this PR does (summarize from REQUIREMENTS.md)
+- Key changes by file/layer (from Implementor's file list)
+- How to review this PR (suggest a file review order: domain → ports → adapters → handler → tests → config/wiring)
+- QA status and coverage summary
+- Link to REQUIREMENTS.md and PLAN.md
+
+**Step 2 — Draft ADR.**
+Also delegate to `tech-writer` with the standard ADR task. This produces a draft ADR (`docs/adr/XXX-<feature-slug>/ADR.md` with status `Proposed`) so the ADR is ready BEFORE the PR review, reducing post-merge interaction.
+
+**Step 3 — Prompt the human:**
+> "Implementation is QA-verified. Here's a suggested PR description: [show PR description]. Create a feature branch (if not already on one), commit the changes, and open a PR. A draft ADR has been created. When you have reviewer feedback, invoke me with the comments."
 
 The workflow pauses until the human returns with PR feedback.
 
@@ -263,13 +276,19 @@ If the human returns with more feedback, re-enter at 4b. Track the round number 
 
 ### Phase 4: Post-Merge Documentation
 
-#### Stage 5 — ADR (Tech Writer)
+#### Stage 5 — Finalize ADR (Tech Writer)
 
 **This stage is triggered only when the human confirms the feature has been merged** — either by continuing the workflow after Stage 4 or by re-entering with "feature X is merged."
 
-Delegate to `tech-writer` with REQUIREMENTS.md, PLAN.md, QA_REPORT.md, and (if exists) PR_FEEDBACK.md.
+If a draft ADR was created at Stage 4a, delegate to `tech-writer` with `mode: finalize-adr` to:
+- Update status from `Proposed` to `Accepted`
+- Incorporate PR feedback resolution (from PR_FEEDBACK.md if it exists)
+- Add the "Deferred Items" section with out-of-scope items from PR feedback and QA notes
+- Add any drift notes if the implementation diverged from the plan
 
-**Wait for artifact:** `docs/adr/XXX-<feature-name>.md`
+If no draft ADR exists, delegate the full ADR creation as before.
+
+**Wait for artifact:** `docs/adr/XXX-<feature-name>.md` (status: Accepted)
 
 **Human review gate:** Show ADR title, status, and key sections.
 
@@ -343,7 +362,10 @@ Before using ANY tool, ask yourself:
 - `runSubagent` → ✅ Coordinator action
 - `vscode_askQuestions` → ✅ Coordinator action
 - `manage_todo_list` → ✅ Coordinator action
-- `replace_string_in_file` → ❌ Specialist action → delegate to implementor
+- `replace_string_in_file` on `TRACE.jsonl` → ✅ Coordinator action (only file you may edit)
+- `replace_string_in_file` on any other file → ❌ Specialist action → delegate to implementor
+- `create_file` for `TRACE.jsonl` → ✅ Coordinator action
+- `create_file` for any other file → ❌ Specialist action → delegate to appropriate agent
 - `run_in_terminal` → ❌ Specialist action → delegate to implementor/qa-lead
 - `grep_search` on application code → ❌ Specialist action → delegate to explorer
 - `semantic_search` → ❌ Specialist action → delegate to explorer

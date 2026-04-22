@@ -14,15 +14,16 @@ User ──► SDLC Orchestrator
               │            └─► CTO validates ──► PLAN.md
               │
               Phase 2: Implementation (loop)
-              ├─ Stage 3: Implementor codes ↔ QA verifies ──► QA_REPORT.md
+              ├─ Stage 3: Implementor codes ↔ QA verifies (with drift detection) ──► QA_REPORT.md
               │            └─ (auto) Athena micro-reflections on every feedback
               │
               Phase 3: PR Review (re-entrant)
-              ├─ Stage 4: Human opens PR → PR Reviewer classifies feedback
+              ├─ Stage 4a: Tech Writer drafts ADR + PR description
+              ├─ Stage 4b-e: Human opens PR → PR Reviewer classifies feedback
               │            └─► Routes to PO/Architect/Implementor → re-verifies
               │
               Phase 4: Post-Merge Documentation
-              └─ Stage 5: Tech Writer ──► ADR.md (after human confirms merge)
+              └─ Stage 5: Tech Writer finalizes ADR (Proposed → Accepted)
 ```
 
 **Key design:** Agents suggest and present options. Humans make every product and engineering decision. Every stage has a review gate.
@@ -119,7 +120,7 @@ Add to `.github/copilot/settings.json` in your repo:
 | **CTO** | Reviews and approves/rejects architectural plans | No |
 | **Implementor** | Writes production-ready code following the approved plan | No |
 | **QA Lead** | Verifies implementation against requirements and produces QA reports | No |
-| **Tech Writer** | Produces the permanent ADR after the feature is merged | No |
+| **Tech Writer** | Drafts ADR + PR description at PR-ready, finalizes ADR post-merge | No |
 | **PR Reviewer** | Classifies PR feedback and routes fixes to the right agent | No |
 | **Athena** | Reflects on every feedback event and proposes workflow improvements | Yes |
 | **Explorer** | Read-only codebase investigator for tracing code paths and patterns | Yes |
@@ -137,7 +138,7 @@ The orchestrator:
 - PO suggests requirements with open questions for you to decide (Stage 1)
 - Architect presents 2-3 approaches with trade-offs for you to choose (Stage 2)
 - Implementor codes + QA verifies in a loop (Stage 3)
-- Prompts you to open a PR (Stage 4)
+- Prompts you to open a PR with a suggested PR description (Stage 4a)
 - Creates the ADR after you confirm the merge (Stage 5)
 
 ### 2. Process PR feedback
@@ -205,6 +206,10 @@ Athena is the continuous improvement meta-agent, operating in two modes:
 
 **Full reports (infrequent):** Triggered manually, after 2+ QA rejections, or when 5+ micro-reflections accumulate for the same agent. Produces a full diagnostic with root cause analysis and proposed instruction changes.
 
+**Post-run analysis:** Triggered after every completed SDLC run to analyze TRACE.jsonl health metrics.
+
+**Session analysis:** Parse exported chat sessions (chat.json) to detect delegation violations, thinking trace bypasses, and workflow compliance issues.
+
 Athena is **advisory only** — it never edits agent files directly.
 
 ## Design Principles
@@ -215,5 +220,7 @@ Athena is **advisory only** — it never edits agent files directly.
 - **Continuous improvement:** Athena reflects on every feedback event, not just failures
 - **Explore before acting:** The Explorer investigates the codebase before agents make assumptions
 - **Circuit breakers:** Revision caps and anti-loop detection prevent infinite feedback loops
-- **Post-merge documentation:** Tech Writer triggers only after the feature is accepted, not prematurely
-- **Artifact trail:** Every feature produces REQUIREMENTS.md → PLAN.md → Code → QA_REPORT.md → ADR.md
+- **Post-merge documentation:** Tech Writer drafts ADR before PR review (reducing post-merge interaction) and finalizes after merge
+- **Artifact trail:** Every feature produces REQUIREMENTS.md → PLAN.md → Code → QA_REPORT.md → ADR.md, with deferred items tracked across artifacts
+- **Drift detection:** QA Lead checks if the implementation matches the plan; deviations are documented
+- **Deferred items tracking:** Out-of-scope feedback flows from PR_FEEDBACK → QA_REPORT → ADR, with priority and impact assessment

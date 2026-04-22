@@ -97,6 +97,43 @@
 
 ---
 
+## PR Review Changes
+
+> Summary of changes made during PR review. Only present if PR_FEEDBACK.md exists.
+
+| # | Feedback Category | Change Description | Impact |
+|---|------------------|--------------------|--------|
+| 1 | CODE_FIX | [What changed and why] | [Low/Medium/High] |
+| 2 | STYLE_NIT | [What changed] | Low |
+
+**Full PR feedback:** See [`docs/adr/XXX-feature-name/PR_FEEDBACK.md`](./XXX-feature-name/PR_FEEDBACK.md)
+
+---
+
+## Implementation Drift
+
+> Deviations between PLAN.md and the final implementation. Only present if drift was detected during QA.
+
+| # | Plan Step | Deviation | Reason |
+|---|-----------|-----------|--------|
+| 1 | [Step] | [What changed] | [Why — human edit, PR feedback, constraint] |
+
+> If no drift occurred, state: "Implementation matched the plan with no significant deviations."
+
+---
+
+## Deferred Items
+
+> Items identified as valid but out-of-scope for this iteration. Collected from PR feedback (OUT_OF_SCOPE), QA report (deferred), and requirements (out-of-scope).
+
+| # | Item | Source | Priority | Impact if Not Addressed | Suggested Follow-up |
+|---|------|--------|----------|------------------------|---------------------|
+| 1 | [Description] | [PR Feedback #N / QA Report / Requirements] | High/Medium/Low | [What happens if not picked up] | [Create ticket / Address in next sprint] |
+
+> If no deferred items exist, state: "No items were deferred."
+
+---
+
 ## References
 
 **Project Artifacts:**

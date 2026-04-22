@@ -48,10 +48,22 @@ You will receive:
    - Run the test suite using the test command from the project context.
    - Check test coverage meets the requirement stated in REQUIREMENTS.md.
    - Review code for obvious security issues (unvalidated input at boundary layer, hardcoded secrets, injection patterns).
-5. **Write QA_REPORT.md** at `docs/adr/XXX-<feature-slug>/QA_REPORT.md` filling every section:
+5. **Plan Drift Detection**: Compare the actual implementation against PLAN.md:
+   - Are there files or functions that weren't in the plan?
+   - Were any planned steps skipped or implemented differently?
+   - Were there manual edits or changes since the last Implementor run?
+   - Note deviations in the "Plan Drift Detection" section of QA_REPORT.md with severity (None / Minor / Moderate / Major).
+6. **Deferred Items**: Identify items that are valid quality concerns but out-of-scope:
+   - Edge cases not covered but acceptable for now
+   - Performance optimizations that could be deferred
+   - Test coverage gaps in non-critical paths
+   - Note these in the "Deferred & Out-of-Scope Items" section with priority and impact.
+7. **Write QA_REPORT.md** at `docs/adr/XXX-<feature-slug>/QA_REPORT.md` filling every section:
    - Executive Summary with overall verdict and quality score (0–100)
    - Requirements Verification table (each criterion: PASS / PARTIAL / FAIL)
    - Plan Completion Verification table (each phase step: Complete / Partial / Incomplete)
+   - Plan Drift Detection (new)
+   - Deferred & Out-of-Scope Items (new)
    - Testing Verification (test output, coverage, per-category checklist)
    - Code Quality Assessment
    - Security Review
