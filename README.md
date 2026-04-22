@@ -30,7 +30,7 @@ User ──► SDLC Orchestrator
 
 ## Installation
 
-### Option A: Install as Plugin (Recommended)
+### Option A: Install as Plugin via Command Palette
 
 1. Open the Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`)
 2. Run **Chat: Install Plugin From Source**
@@ -44,7 +44,30 @@ Then initialize your workspace (see [Workspace Setup](#workspace-setup) below).
 
 > **Note:** Requires `chat.plugins.enabled` to be `true` in VS Code settings. Agent plugins are a preview feature.
 
-### Option B: Copy to Repository
+### Option B: Install as Plugin via Manual Clone (Recommended)
+
+1. Clone the repository to a local directory:
+   ```bash
+   git clone https://github.com/roma-mekari/agentic-sdlc.git ~/agentic-sdlc
+   ```
+
+2. Open VS Code Settings (`Cmd+,` / `Ctrl+,`) and add the cloned path to `chat.plugins.localPaths`:
+   ```json
+   {
+     "chat.plugins.enabled": true,
+     "chat.plugins.localPaths": [
+       "~/agentic-sdlc"
+     ]
+   }
+   ```
+
+3. Reload VS Code — all agents and skills are now available in Copilot Chat.
+
+Then initialize your workspace (see [Workspace Setup](#workspace-setup) below).
+
+> **Tip:** This approach makes it easy to `git pull` updates from the repository.
+
+### Option C: Copy to Repository
 
 For teams that can't use plugins:
 
@@ -56,7 +79,7 @@ cp /path/to/agentic-sdlc/agents/*.agent.md .github/agents/
 cp /path/to/agentic-sdlc/workflow_templates/* .github/workflow_templates/
 ```
 
-### Option C: User-Level Prompts
+### Option D: User-Level Prompts
 
 For personal use across all repositories:
 
