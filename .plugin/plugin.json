@@ -1,6 +1,6 @@
 {
   "name": "agentic-sdlc",
-  "description": "Autonomous SDLC workflow powered by specialized AI agents. Drives features from PRD analysis and estimation through QA-verified, documented code with PR feedback integration. Includes orchestrator, PO, architect, CTO, implementor, QA lead, tech writer, PR reviewer, explorer, Athena (continuous improvement), PRD analyst, RFC writer, and estimator agents.",
+  "description": "Autonomous SDLC workflow powered by specialized AI agents. Includes a general-purpose Dev agent for everyday tasks and a full SDLC Orchestrator for feature development with spec trail. Agents: dev, orchestrator, PO, architect, CTO, implementor, QA lead, tech writer, PR reviewer, explorer, Athena, PRD analyst, RFC writer, and estimator.",
   "version": "0.2.0",
   "author": {
     "name": "Mekari Engineering"

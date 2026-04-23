@@ -149,6 +149,7 @@ Add to `.github/copilot/settings.json` in your repo:
 
 | Agent | Role | User-Invocable |
 |-------|------|----------------|
+| **Dev** | General-purpose agent: plans, implements, and verifies in a continuous loop without SDLC ceremony | Yes |
 | **SDLC Orchestrator** | Coordinates the full workflow, manages review gates and stage transitions | Yes |
 | **PRD Analyst** | Reviews PRDs for completeness, ambiguity, and feasibility before SDLC starts | Yes |
 | **RFC Writer** | Produces technical design docs with alternatives, cross-service impact, and rollout plans | Yes |
@@ -165,7 +166,21 @@ Add to `.github/copilot/settings.json` in your repo:
 
 ## Quick Start
 
-### 1. Build a feature
+### 1. Everyday development (no ceremony)
+
+```
+@dev Add pagination to the GET /api/v1/candidates endpoint with cursor-based navigation
+```
+
+The Dev agent:
+- Explores the codebase for existing patterns (via Explorer subagent)
+- Plans the changes and asks you to confirm
+- Implements directly
+- Runs parallel security review + verification subagents
+- Fixes any issues and re-verifies until clean
+- Asks if you need anything else (stays in session)
+
+### 2. Build a feature (full SDLC ceremony)
 
 ```
 @sdlc-orchestrator Build a user authentication module with JWT tokens and role-based access control
@@ -179,7 +194,7 @@ The orchestrator:
 - Prompts you to open a PR with a suggested PR description (Stage 4a)
 - Creates the ADR after you confirm the merge (Stage 5)
 
-### 2. Process PR feedback
+### 3. Process PR feedback
 
 After Stage 3, the orchestrator prompts you to open a PR. Once you receive reviewer feedback:
 
@@ -190,37 +205,37 @@ After Stage 3, the orchestrator prompts you to open a PR. Once you receive revie
 - src/auth/middleware.go:15 — "Rename `checkAuth` to `requireAuth` for clarity"
 ```
 
-### 3. Confirm merge (triggers documentation)
+### 4. Confirm merge (triggers documentation)
 
 ```
 @sdlc-orchestrator Feature 001-auth-module has been merged
 ```
 
-### 4. Investigate the codebase
+### 5. Investigate the codebase
 
 ```
 @explorer How does the authentication middleware work? Trace from handler to database.
 ```
 
-### 5. Analyze a PRD before starting
+### 6. Analyze a PRD before starting
 
 ```
 @prd-analyst Review this PRD for our new candidate bulk import feature: [paste PRD or link]
 ```
 
-### 6. Write a technical RFC
+### 7. Write a technical RFC
 
 ```
 @rfc-writer Design doc for adding real-time notifications to the recruitment pipeline
 ```
 
-### 7. Estimate effort
+### 8. Estimate effort
 
 ```
 @estimator How big is the candidate bulk import feature? Here's the PRD: [paste or link]
 ```
 
-### 8. Invoke Athena
+### 9. Invoke Athena
 
 ```
 @athena Analyze the last SDLC run — the implementor kept failing QA on input validation
@@ -232,6 +247,7 @@ After Stage 3, the orchestrator prompts you to open a PR. Once you receive revie
 agentic-sdlc/
 ├── plugin.json                  # Plugin manifest
 ├── agents/                      # Agent definitions
+│   ├── dev.agent.md                  # General-purpose: plan → implement → verify loop
 │   ├── sdlc-orchestrator.agent.md
 │   ├── po.agent.md
 │   ├── architect.agent.md
