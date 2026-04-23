@@ -204,12 +204,44 @@ Agents affected: <list>
 Top proposed fix: <1-sentence summary of the highest-impact change>
 ```
 
+## Feedback Routing: Agent vs. Engineering Principles
+
+When analyzing feedback, distinguish between two categories:
+
+### Agent/Workflow Improvement
+Feedback that reveals a flaw in how an agent operates — instruction gaps, delegation failures, template issues. These are logged to `reflections.jsonl` and proposed as `.agent.md` changes in full reports. Signal types: `INSTRUCTION_GAP`, `INSTRUCTION_VIOLATION`, `TEMPLATE_GAP`, `CONTEXT_LOSS`, `SCOPE_DRIFT`, `DELEGATION_FAILURE`.
+
+### Engineering Principle Discovery
+Feedback that reveals a **repo-specific engineering practice** — coding conventions, patterns, error handling approaches, logging standards, context propagation rules, testing patterns, etc. These should be captured as persistent engineering principles that all future implementations follow.
+
+When you identify an engineering principle:
+1. Classify the concern area (e.g., `error-handling`, `logging`, `context-propagation`, `testing`, `naming`, `validation`, `database`, `api-design`)
+2. Write it to `/memories/repo/engineering-principles/<concern>.md` using the memory tool
+3. Format as actionable rules:
+   ```markdown
+   # <Concern Area>
+
+   ## Principles
+   - **<Principle name>**: <Clear, actionable rule>
+     - Source: <What feedback or observation led to this>
+     - Date: YYYY-MM-DD
+
+   ## Examples
+   - Good: `<code example>`
+   - Bad: `<anti-pattern example>`
+   ```
+4. If the file already exists, append the new principle (do not overwrite existing ones)
+5. Log a reflection entry with signal type `ENGINEERING_PRINCIPLE` in addition to routing to memory
+
+The Implementor, QA Lead, and Architect agents read these principles at runtime. Capturing them here directly improves future implementation quality without requiring agent instruction changes.
+
 ## Constraints for Micro-Reflections
 
 - Spend NO MORE than 30 seconds of analysis. This is a quick capture, not a deep dive.
 - Do NOT produce a full ATHENA_REPORT.md for micro-reflections.
 - Do NOT propose before/after diffs — just log the insight. Diffs are for full reports.
 - If the feedback is clearly a style preference with no instruction implications, classify as `FALSE_POSITIVE` and skip logging.
+- If the feedback reveals a repo engineering practice (not an agent flaw), route it as an `ENGINEERING_PRINCIPLE` instead of (or in addition to) the agent-focused signal.
 
 ## Cross-Session Learning
 

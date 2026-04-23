@@ -71,6 +71,24 @@ Date: YYYY-MM-DD
 - [ ] Test error scenarios
 - [ ] Test edge cases
 
+### API Verification Examples
+> Architect-provided sample API calls for manual verification. QA Lead will refine these with actual implemented details.
+
+```bash
+# Example: [endpoint description]
+curl -X [METHOD] http://localhost:[PORT]/api/v1/[path] \
+  -H "Authorization: Bearer ${TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{"field": "value"}'
+```
+
+### Suggested Backyard APIs
+> If this feature involves complex multi-step processes, suggest dev-only endpoints for easier testing.
+
+| Process | Suggested Endpoint | What It Simulates |
+|---------|--------------------|-------------------|
+| [Complex flow] | `POST /backyard/...` | [What it shortcuts] |
+
 ---
 
 ## 4. Risk Mitigation

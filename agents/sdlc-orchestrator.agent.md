@@ -126,9 +126,12 @@ Always display a clear summary of what the subagent produced **before** presenti
 
 #### Stage 0 — Context Discovery
 
-1. Delegate to `explorer` with: "Analyze this codebase to determine: primary language/version, framework, architecture pattern, layer ordering, build/test/lint commands, error handling patterns, and code conventions. Check configuration files and representative source files."
-2. Store the Explorer's report as **project context**.
-3. Pass this context to every subsequent subagent invocation.
+1. Delegate to `explorer` with: "Analyze this codebase to determine: primary language/version, framework, architecture pattern, layer ordering, build/test/lint commands, error handling patterns, and code conventions. **Also perform a tech debt scan** on the area relevant to the feature — search for TODO/FIXME/HACK markers, deprecated dependencies, anti-patterns, and missing test coverage. Check configuration files and representative source files."
+2. Store the Explorer's report as **project context** (including the tech debt findings).
+3. **Check for engineering principles**: Read `/memories/repo/engineering-principles/` if it exists. Include relevant principles in every subsequent subagent delegation prompt as part of the project context.
+4. **Check for existing feature specs**: List `docs/specs/` if it exists. If a spec file relevant to the feature exists, note its path — it will be updated after the ADR is finalized.
+5. Pass this context to every subsequent subagent invocation.
+6. If the Explorer found HIGH priority tech debt items in the affected area, surface them to the human before proceeding to Stage 1: "The Explorer found the following tech debt in the area you'll be working on: [summary]. Would you like to address any of these as part of this feature?"
 
 No human gate — automatic. If the Explorer can't determine the stack (e.g., empty repo), ask the human.
 
@@ -292,6 +295,18 @@ If no draft ADR exists, delegate the full ADR creation as before.
 
 **Human review gate:** Show ADR title, status, and key sections.
 
+#### Stage 6 — Update Feature Spec (Tech Writer)
+
+After the ADR is finalized, update the living feature spec:
+
+1. Delegate to `tech-writer` with `mode: update-spec`:
+   - Path to the finalized ADR
+   - Path to REQUIREMENTS.md, PLAN.md, QA_REPORT.md
+   - Feature spec path (`docs/specs/<feature-slug>.md`) — the Tech Writer will create it if it doesn't exist.
+2. If this is a new feature area with no existing spec, the Tech Writer will bootstrap one from this feature's artifacts.
+
+**Human review gate:** Show which spec sections were updated and any new sub-features added.
+
 ### Done
 
 Report summary:
@@ -344,7 +359,19 @@ When the human invokes the orchestrator mid-lifecycle:
 
 - **PR feedback** (mentions review comments, code review) → Enter Stage 4b directly
 - **"Feature merged"** or similar → Enter Stage 5 directly
+- **"Bootstrap specs"** or "Create feature specs" → Run the bootstrap-spec workflow (see below)
 - **"Analyze this session"** or provides a chat.json → Delegate to `athena` with `mode: session-analysis`. Athena will use the `parse-session` skill to produce a SESSION_DIGEST.md first, then analyze it.
+
+### Bootstrap-Spec Workflow
+
+When the human requests bootstrapping feature specs for an existing codebase:
+
+1. Ask the human for the list of features to document (they may provide a QA feature list or similar).
+2. For each feature (or batch of related features):
+   a. Delegate to `explorer` with: "Investigate the [feature name] feature area. Map all routes, handlers, services, data models, and integration points. Also identify sub-features from the code structure."
+   b. Delegate to `tech-writer` with `mode: bootstrap-spec`, passing the Explorer report and the feature name/slug plus any known sub-feature list.
+3. Present each bootstrapped spec for human review.
+4. Repeat for all features in the list.
 
 Steps:
 1. Locate the relevant ADR folder (ask if ambiguous).
