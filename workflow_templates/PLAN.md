@@ -61,7 +61,25 @@ Date: YYYY-MM-DD
 
 ---
 
-## 3. Verification Strategy
+## 3. Feature Flag Strategy
+
+> If this feature introduces new behavior to an existing flow, describe the feature flag approach. If no feature flag is needed, state why.
+
+| Flag Name | Scope | Default | Controls |
+|-----------|-------|---------|----------|
+| `feature.<name>.enabled` | Per-tenant / Global | `false` | [What behavior it gates] |
+
+### Flag Behavior
+- **Flag OFF:** [Existing behavior preserved — describe]
+- **Flag ON:** [New behavior — describe]
+- **Check location:** [Which layer — handler, service, or domain]
+- **Cleanup plan:** Remove flag after [stabilization period]
+
+> If no feature flag is needed: "No feature flag required — [reason, e.g., 'new additive endpoint, no existing flow modified']."
+
+---
+
+## 4. Verification Strategy
 
 ### Unit Tests
 
@@ -91,7 +109,7 @@ curl -X [METHOD] http://localhost:[PORT]/api/v1/[path] \
 
 ---
 
-## 4. Risk Mitigation
+## 5. Risk Mitigation
 
 ### Technical Risks
 | Risk | Impact | Mitigation |

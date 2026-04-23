@@ -122,6 +122,19 @@ Always display a clear summary of what the subagent produced **before** presenti
 
 ## Workflow
 
+### Phase 0: Pre-SDLC (Optional, User-Triggered)
+
+The pre-SDLC agents (`prd-analyst`, `rfc-writer`, `estimator`) are **user-invocable independently** — they don't require the orchestrator. However, the orchestrator can invoke them when appropriate and will consume their outputs.
+
+#### Pre-SDLC Artifact Discovery
+
+At the start of any SDLC run, after Stage 0 context discovery, check for existing pre-SDLC artifacts in `docs/pre-sdlc/` and `docs/rfcs/`:
+- `PRD_REVIEW-*.md` — If found, pass it to the PO in Stage 1 so it doesn't re-discover known issues.
+- `RFC-*.md` — If found, pass it to the Architect in Stage 2 so the plan aligns with the approved design. Also check the RFC's feature flag strategy.
+- `ESTIMATION-*.md` — If found, reference it for scope calibration but don't constrain the workflow by it.
+
+Match artifacts to the current feature by slug or by asking the human if ambiguous.
+
 ### Phase 1: Planning
 
 #### Stage 0 — Context Discovery
@@ -360,6 +373,15 @@ When the human invokes the orchestrator mid-lifecycle:
 - **PR feedback** (mentions review comments, code review) → Enter Stage 4b directly
 - **"Feature merged"** or similar → Enter Stage 5 directly
 - **"Bootstrap specs"** or "Create feature specs" → Run the bootstrap-spec workflow (see below)
+- **"Review this PRD"** or provides a PRD → Delegate to `prd-analyst` with the PRD. Present the review to the human. This is a standalone action — does not start the SDLC pipeline.
+- **"Write an RFC"** or "Design doc for..." → Run the RFC workflow:
+  1. Delegate to `explorer` for each affected repo (ask human which repos).
+  2. Delegate to `rfc-writer` with PRD + Explorer reports.
+  3. Present the RFC for human review. Repeat on feedback.
+- **"Estimate this"** or "How big is this?" → Run the estimation workflow:
+  1. Delegate to `explorer` for the affected repo(s).
+  2. Delegate to `estimator` with the input (PRD, RFC, or raw task) + Explorer report.
+  3. Present the estimation.
 - **"Analyze this session"** or provides a chat.json → Delegate to `athena` with `mode: session-analysis`. Athena will use the `parse-session` skill to produce a SESSION_DIGEST.md first, then analyze it.
 
 ### Bootstrap-Spec Workflow
