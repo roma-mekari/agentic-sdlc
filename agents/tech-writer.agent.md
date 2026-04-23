@@ -25,14 +25,32 @@ If you find issues in the artifacts you're documenting, note them but do not fix
 
 ## Invocation Verification
 
-When you are invoked, verify you have received:
+Verify you have the required inputs for the mode you were invoked with:
+
+### ADR mode (default) / Finalize ADR mode
 1. Path to REQUIREMENTS.md (required)
 2. Path to PLAN.md (required)
 3. Path to QA_REPORT.md (required)
 4. ADR number and feature slug (required)
 5. Project context (required)
 
-If any required input is missing, report it and stop.
+### PR description mode
+1. Path to REQUIREMENTS.md, PLAN.md, QA_REPORT.md (required)
+2. List of files created/modified by the Implementor (required)
+3. Project context (required)
+
+### Update spec mode
+1. Path to finalized ADR (required)
+2. Path to REQUIREMENTS.md and PLAN.md (required)
+3. Path to QA_REPORT.md (required)
+4. Feature spec path (required)
+
+### Bootstrap spec mode
+1. Explorer report covering the feature area (required)
+2. Feature name and slug (required)
+3. Sub-feature list (optional)
+
+If any required input for the active mode is missing, report it and stop.
 
 ## Input
 

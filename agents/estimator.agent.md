@@ -89,7 +89,7 @@ Use `vscode/askQuestions` to confirm:
 - Any known velocity context (average SP per sprint)
 - Whether to include QA/review time in estimates or just dev effort
 
-Write the estimation to `docs/pre-sdlc/ESTIMATION-<slug>.md`.
+Write the estimation to `docs/pre-sdlc/ESTIMATION-<slug>.md`. If the `docs/pre-sdlc/` directory doesn't exist, **create it**.
 
 ## Output Format
 

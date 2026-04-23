@@ -117,7 +117,7 @@ CREATE TABLE ... (
 
 ## Feature Flag Strategy
 
-> If this RFC introduces new behavior to existing flows, describe how it will be gated.
+> **Required section.** If no feature flag is needed, state: "No feature flag required — [reason, e.g., 'new additive endpoint, no existing flow modified']."
 
 | Flag Name | Scope | Default | Description |
 |-----------|-------|---------|-------------|

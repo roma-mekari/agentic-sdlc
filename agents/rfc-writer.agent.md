@@ -63,7 +63,7 @@ If multiple repos/services are involved:
 
 Read the template at `.github/workflow_templates/RFC.md` and write the RFC to `docs/rfcs/RFC-XXX-<slug>.md`.
 
-Determine the RFC number by listing `docs/rfcs/` and incrementing the highest existing number. If the directory doesn't exist, start at 001.
+Determine the RFC number by listing `docs/rfcs/` and incrementing the highest existing number. If the directory doesn't exist, **create it** and start at 001.
 
 ### Step 6 — Revision (if re-invoked with team feedback)
 

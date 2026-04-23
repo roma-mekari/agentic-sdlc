@@ -24,6 +24,8 @@ Before EVERY action you take, run this mental checklist:
 - Agent instruction files (`agents/*.agent.md`)
 - Workflow template files (`.github/workflow_templates/*`)
 - Previously-produced artifacts (`docs/adr/*/REQUIREMENTS.md`, `PLAN.md`, etc.) — only to verify they exist or to summarize them for the human
+- Pre-SDLC artifacts (`docs/pre-sdlc/*`, `docs/rfcs/*`) — to discover and pass to downstream agents
+- Feature specs (`docs/specs/*`) — to check existence for Stage 6
 - Trace logs (`docs/adr/*/TRACE.jsonl`, `docs/athena/reflections.jsonl`)
 
 **You MUST use the `runSubagent` tool** to delegate work. Every delegation must follow the Delegation Protocol below.
@@ -310,6 +312,8 @@ If no draft ADR exists, delegate the full ADR creation as before.
 
 #### Stage 6 — Update Feature Spec (Tech Writer)
 
+**Skip this stage for Bug-Fix Fast Track runs** (no REQUIREMENTS.md or PLAN.md exist). Bug fixes do not warrant feature spec updates.
+
 After the ADR is finalized, update the living feature spec:
 
 1. Delegate to `tech-writer` with `mode: update-spec`:
@@ -394,11 +398,6 @@ When the human requests bootstrapping feature specs for an existing codebase:
    b. Delegate to `tech-writer` with `mode: bootstrap-spec`, passing the Explorer report and the feature name/slug plus any known sub-feature list.
 3. Present each bootstrapped spec for human review.
 4. Repeat for all features in the list.
-
-Steps:
-1. Locate the relevant ADR folder (ask if ambiguous).
-2. Verify required artifacts exist.
-3. Enter the appropriate stage.
 
 ## Self-Check Before Every Action
 
