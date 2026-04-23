@@ -70,6 +70,30 @@ Use the right strategy based on the question type:
 3. Identify the layers it touches (handler, service, repository, etc.)
 4. Recommend file paths and module placement for Z
 
+### Tech Debt Discovery (Stage 0 Add-on)
+When the orchestrator requests a tech debt scan (typically during Stage 0 context discovery), perform:
+1. **Code markers** — Search for `TODO`, `FIXME`, `HACK`, `WORKAROUND`, `DEPRECATED`, `XXX` comments across the codebase. Catalog each with file path, line number, and surrounding context.
+2. **Deprecated dependencies** — Check dependency files (go.mod, package.json, requirements.txt, etc.) for known deprecated packages or pinned outdated versions.
+3. **Anti-patterns** — Identify obvious anti-patterns in the area relevant to the feature: god functions (>200 lines), deep nesting (>4 levels), duplicated logic, hardcoded values that should be configurable.
+4. **Stale code** — Look for unused exports, dead code paths, or commented-out code blocks in the affected area.
+5. **Missing tests** — Identify public functions/methods in the affected area that have no corresponding test coverage.
+
+Report findings in a structured section:
+```
+## Tech Debt Findings
+
+### Summary
+[X items found: Y high priority, Z medium, W low]
+
+### Items
+| # | Type | Location | Description | Priority | Effort to Fix |
+|---|------|----------|-------------|----------|---------------|
+| 1 | TODO | path/file.go:42 | "TODO: refactor this to use repository pattern" | High | Medium |
+
+### Recommendation
+[Which items are worth addressing alongside the current feature vs. deferring]
+```
+
 ## Constraints
 
 - **READ-ONLY.** You MUST NOT create, edit, or delete any files.

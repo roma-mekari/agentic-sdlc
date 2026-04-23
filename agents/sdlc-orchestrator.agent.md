@@ -24,6 +24,8 @@ Before EVERY action you take, run this mental checklist:
 - Agent instruction files (`agents/*.agent.md`)
 - Workflow template files (`.github/workflow_templates/*`)
 - Previously-produced artifacts (`docs/adr/*/REQUIREMENTS.md`, `PLAN.md`, etc.) — only to verify they exist or to summarize them for the human
+- Pre-SDLC artifacts (`docs/pre-sdlc/*`, `docs/rfcs/*`) — to discover and pass to downstream agents
+- Feature specs (`docs/specs/*`) — to check existence for Stage 6
 - Trace logs (`docs/adr/*/TRACE.jsonl`, `docs/athena/reflections.jsonl`)
 
 **You MUST use the `runSubagent` tool** to delegate work. Every delegation must follow the Delegation Protocol below.
@@ -122,13 +124,29 @@ Always display a clear summary of what the subagent produced **before** presenti
 
 ## Workflow
 
+### Phase 0: Pre-SDLC (Optional, User-Triggered)
+
+The pre-SDLC agents (`prd-analyst`, `rfc-writer`, `estimator`) are **user-invocable independently** — they don't require the orchestrator. However, the orchestrator can invoke them when appropriate and will consume their outputs.
+
+#### Pre-SDLC Artifact Discovery
+
+At the start of any SDLC run, after Stage 0 context discovery, check for existing pre-SDLC artifacts in `docs/pre-sdlc/` and `docs/rfcs/`:
+- `PRD_REVIEW-*.md` — If found, pass it to the PO in Stage 1 so it doesn't re-discover known issues.
+- `RFC-*.md` — If found, pass it to the Architect in Stage 2 so the plan aligns with the approved design. Also check the RFC's feature flag strategy.
+- `ESTIMATION-*.md` — If found, reference it for scope calibration but don't constrain the workflow by it.
+
+Match artifacts to the current feature by slug or by asking the human if ambiguous.
+
 ### Phase 1: Planning
 
 #### Stage 0 — Context Discovery
 
-1. Delegate to `explorer` with: "Analyze this codebase to determine: primary language/version, framework, architecture pattern, layer ordering, build/test/lint commands, error handling patterns, and code conventions. Check configuration files and representative source files."
-2. Store the Explorer's report as **project context**.
-3. Pass this context to every subsequent subagent invocation.
+1. Delegate to `explorer` with: "Analyze this codebase to determine: primary language/version, framework, architecture pattern, layer ordering, build/test/lint commands, error handling patterns, and code conventions. **Also perform a tech debt scan** on the area relevant to the feature — search for TODO/FIXME/HACK markers, deprecated dependencies, anti-patterns, and missing test coverage. Check configuration files and representative source files."
+2. Store the Explorer's report as **project context** (including the tech debt findings).
+3. **Check for engineering principles**: Read `/memories/repo/engineering-principles/` if it exists. Include relevant principles in every subsequent subagent delegation prompt as part of the project context.
+4. **Check for existing feature specs**: List `docs/specs/` if it exists. If a spec file relevant to the feature exists, note its path — it will be updated after the ADR is finalized.
+5. Pass this context to every subsequent subagent invocation.
+6. If the Explorer found HIGH priority tech debt items in the affected area, surface them to the human before proceeding to Stage 1: "The Explorer found the following tech debt in the area you'll be working on: [summary]. Would you like to address any of these as part of this feature?"
 
 No human gate — automatic. If the Explorer can't determine the stack (e.g., empty repo), ask the human.
 
@@ -292,6 +310,20 @@ If no draft ADR exists, delegate the full ADR creation as before.
 
 **Human review gate:** Show ADR title, status, and key sections.
 
+#### Stage 6 — Update Feature Spec (Tech Writer)
+
+**Skip this stage for Bug-Fix Fast Track runs** (no REQUIREMENTS.md or PLAN.md exist). Bug fixes do not warrant feature spec updates.
+
+After the ADR is finalized, update the living feature spec:
+
+1. Delegate to `tech-writer` with `mode: update-spec`:
+   - Path to the finalized ADR
+   - Path to REQUIREMENTS.md, PLAN.md, QA_REPORT.md
+   - Feature spec path (`docs/specs/<feature-slug>.md`) — the Tech Writer will create it if it doesn't exist.
+2. If this is a new feature area with no existing spec, the Tech Writer will bootstrap one from this feature's artifacts.
+
+**Human review gate:** Show which spec sections were updated and any new sub-features added.
+
 ### Done
 
 Report summary:
@@ -344,12 +376,28 @@ When the human invokes the orchestrator mid-lifecycle:
 
 - **PR feedback** (mentions review comments, code review) → Enter Stage 4b directly
 - **"Feature merged"** or similar → Enter Stage 5 directly
+- **"Bootstrap specs"** or "Create feature specs" → Run the bootstrap-spec workflow (see below)
+- **"Review this PRD"** or provides a PRD → Delegate to `prd-analyst` with the PRD. Present the review to the human. This is a standalone action — does not start the SDLC pipeline.
+- **"Write an RFC"** or "Design doc for..." → Run the RFC workflow:
+  1. Delegate to `explorer` for each affected repo (ask human which repos).
+  2. Delegate to `rfc-writer` with PRD + Explorer reports.
+  3. Present the RFC for human review. Repeat on feedback.
+- **"Estimate this"** or "How big is this?" → Run the estimation workflow:
+  1. Delegate to `explorer` for the affected repo(s).
+  2. Delegate to `estimator` with the input (PRD, RFC, or raw task) + Explorer report.
+  3. Present the estimation.
 - **"Analyze this session"** or provides a chat.json → Delegate to `athena` with `mode: session-analysis`. Athena will use the `parse-session` skill to produce a SESSION_DIGEST.md first, then analyze it.
 
-Steps:
-1. Locate the relevant ADR folder (ask if ambiguous).
-2. Verify required artifacts exist.
-3. Enter the appropriate stage.
+### Bootstrap-Spec Workflow
+
+When the human requests bootstrapping feature specs for an existing codebase:
+
+1. Ask the human for the list of features to document (they may provide a QA feature list or similar).
+2. For each feature (or batch of related features):
+   a. Delegate to `explorer` with: "Investigate the [feature name] feature area. Map all routes, handlers, services, data models, and integration points. Also identify sub-features from the code structure."
+   b. Delegate to `tech-writer` with `mode: bootstrap-spec`, passing the Explorer report and the feature name/slug plus any known sub-feature list.
+3. Present each bootstrapped spec for human review.
+4. Repeat for all features in the list.
 
 ## Self-Check Before Every Action
 

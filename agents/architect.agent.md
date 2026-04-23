@@ -59,8 +59,10 @@ On your first invocation (no prior PLAN.md exists or no approach has been chosen
    - **Cons**: Clear downsides or risks
    - **Effort estimate**: Relative (Low / Medium / High)
    - **Affected files**: Key files that would be created or modified
+   - **Feature flag needs**: Whether this approach requires feature flagging (see Feature Flag Assessment below)
 4. **Recommend one approach** with clear reasoning.
 5. **Flag key design decisions** that the human should weigh in on (e.g., "Should we use an existing library vs. build custom?", "Sync vs. async processing?").
+6. **Feature flag assessment** — if any approach introduces new behavior to an existing flow (not just new additive endpoints), flag it and recommend a feature flag strategy.
 
 Format your output as:
 
@@ -99,7 +101,39 @@ When re-invoked with the human's chosen approach (or CTO feedback on an existing
    - Architectural Context: chosen approach, files to modify, affected layers, compliance checklist
    - Implementation Phases: ordered by the project's layer conventions. Each phase must list specific files (with paths), what to implement, and completion criteria.
    - Verification Strategy (unit tests, integration tests, manual test cases)
+   - Feature Flag Strategy (if applicable — see below)
    - Risk Mitigation table
+
+## Feature Flag Assessment
+
+When designing the plan, you MUST evaluate whether feature flags are needed. Apply this decision matrix:
+
+| Condition | Feature Flag Required? |
+|-----------|----------------------|
+| New behavior added to an existing user-facing flow | **YES** — gate the new behavior |
+| Modifying existing API response shape or business logic | **YES** — gate behind flag for gradual rollout |
+| New standalone endpoint (no existing flow affected) | No — unless high risk |
+| Database migration only (no behavioral change) | No |
+| Risky change with no easy rollback | **YES** — flag enables instant rollback |
+| Multi-service change requiring coordinated deployment | **YES** — flag allows independent deployment |
+
+If a feature flag is needed, include in PLAN.md:
+
+```markdown
+## Feature Flag Strategy
+
+| Flag Name | Scope | Default | Controls |
+|-----------|-------|---------|----------|
+| `feature.<name>.enabled` | Per-tenant / Global | `false` | [What behavior it gates] |
+
+### Implementation Notes
+- Where to check the flag (which layer — handler, service, or domain)
+- Behavior when flag is OFF (existing behavior preserved)
+- Behavior when flag is ON (new behavior)
+- Flag cleanup plan: Remove after [stabilization period]
+```
+
+If an RFC exists for this feature (`docs/rfcs/RFC-XXX-*.md`), reference its feature flag strategy and ensure alignment.
 
 ## Codebase Investigation
 

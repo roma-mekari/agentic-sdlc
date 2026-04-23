@@ -5,16 +5,24 @@ A VS Code Copilot agent plugin that drives features from idea to merged, documen
 ## Architecture Overview
 
 ```
-User ──► SDLC Orchestrator
+User ──► Pre-SDLC Agents (standalone, user-invocable)
+              ├─ PRD Analyst: Reviews PRD completeness & feasibility ──► PRD_REVIEW.md
+              ├─ RFC Writer: Technical design doc with alternatives & rollout plan ──► RFC-XXX.md
+              └─ Estimator: Story point ranges with risk multipliers ──► ESTIMATION.md
+
+User ──► SDLC Orchestrator (auto-discovers pre-SDLC artifacts)
               │
               Phase 1: Planning (interactive)
-              ├─ Stage 0: Context Discovery (Explorer auto-detects project stack)
+              ├─ Stage 0: Context Discovery (Explorer auto-detects stack + tech debt scan)
+              │            └─ Loads engineering principles from memory
               ├─ Stage 1: PO suggests requirements ↔ Human decides ──► REQUIREMENTS.md
               ├─ Stage 2: Architect presents approaches with trade-offs ↔ Human chooses
-              │            └─► CTO validates ──► PLAN.md
+              │            ├─ Feature flag assessment for existing flow changes
+              │            └─► CTO validates (incl. feature flag compliance) ──► PLAN.md
               │
               Phase 2: Implementation (loop)
-              ├─ Stage 3: Implementor codes ↔ QA verifies (with drift detection) ──► QA_REPORT.md
+              ├─ Stage 3: Implementor codes (tech debt aware) ↔ QA verifies
+              │            ├─ QA produces test playbook (curls + backyard API suggestions)
               │            └─ (auto) Athena micro-reflections on every feedback
               │
               Phase 3: PR Review (re-entrant)
@@ -23,7 +31,8 @@ User ──► SDLC Orchestrator
               │            └─► Routes to PO/Architect/Implementor → re-verifies
               │
               Phase 4: Post-Merge Documentation
-              └─ Stage 5: Tech Writer finalizes ADR (Proposed → Accepted)
+              ├─ Stage 5: Tech Writer finalizes ADR (Proposed → Accepted)
+              └─ Stage 6: Tech Writer updates living feature spec
 ```
 
 **Key design:** Agents suggest and present options. Humans make every product and engineering decision. Every stage has a review gate.
@@ -103,7 +112,7 @@ Or set up manually:
 
 1. **Create directories:**
    ```bash
-   mkdir -p .github/workflow_templates docs/adr docs/athena
+   mkdir -p .github/workflow_templates docs/adr docs/athena docs/specs docs/rfcs docs/pre-sdlc
    ```
 
 2. **Copy workflow templates** from this repo's `workflow_templates/` to `.github/workflow_templates/`.
@@ -112,10 +121,13 @@ Your workspace should look like:
 ```
 your-repo/
 ├── .github/
-│   └── workflow_templates/    # Templates for REQUIREMENTS.md, PLAN.md, etc.
+│   └── workflow_templates/    # Templates for REQUIREMENTS.md, PLAN.md, RFC.md, etc.
 ├── docs/
 │   ├── adr/                   # Generated ADRs and artifacts
-│   └── athena/                # Micro-reflections and reports
+│   ├── athena/                # Micro-reflections and reports
+│   ├── specs/                 # Living feature specs
+│   ├── rfcs/                  # Technical RFCs
+│   └── pre-sdlc/             # PRD reviews, estimations
 └── (your existing code)
 ```
 
@@ -138,15 +150,18 @@ Add to `.github/copilot/settings.json` in your repo:
 | Agent | Role | User-Invocable |
 |-------|------|----------------|
 | **SDLC Orchestrator** | Coordinates the full workflow, manages review gates and stage transitions | Yes |
+| **PRD Analyst** | Reviews PRDs for completeness, ambiguity, and feasibility before SDLC starts | Yes |
+| **RFC Writer** | Produces technical design docs with alternatives, cross-service impact, and rollout plans | Yes |
+| **Estimator** | Story point estimation with ranges, risk multipliers, and codebase complexity analysis | Yes |
 | **PO** | Suggests user stories and acceptance criteria; asks human to decide | No |
-| **Architect** | Presents 2-3 approaches with trade-offs; details the human's chosen approach | No |
-| **CTO** | Reviews and approves/rejects architectural plans | No |
-| **Implementor** | Writes production-ready code following the approved plan | No |
-| **QA Lead** | Verifies implementation against requirements and produces QA reports | No |
-| **Tech Writer** | Drafts ADR + PR description at PR-ready, finalizes ADR post-merge | No |
+| **Architect** | Presents 2-3 approaches with trade-offs; assesses feature flag needs | No |
+| **CTO** | Reviews and approves/rejects architectural plans (incl. feature flag compliance) | No |
+| **Implementor** | Writes production-ready code following the approved plan; tech debt aware | No |
+| **QA Lead** | Verifies implementation, produces QA reports with test playbooks and backyard API suggestions | No |
+| **Tech Writer** | Drafts ADR + PR description, finalizes ADR post-merge, maintains feature specs | No |
 | **PR Reviewer** | Classifies PR feedback and routes fixes to the right agent | No |
-| **Athena** | Reflects on every feedback event and proposes workflow improvements | Yes |
-| **Explorer** | Read-only codebase investigator for tracing code paths and patterns | Yes |
+| **Athena** | Reflects on feedback events, routes findings to agent improvements or engineering principles | Yes |
+| **Explorer** | Read-only codebase investigator for tracing code paths, patterns, and tech debt | Yes |
 
 ## Quick Start
 
@@ -187,7 +202,25 @@ After Stage 3, the orchestrator prompts you to open a PR. Once you receive revie
 @explorer How does the authentication middleware work? Trace from handler to database.
 ```
 
-### 5. Invoke Athena
+### 5. Analyze a PRD before starting
+
+```
+@prd-analyst Review this PRD for our new candidate bulk import feature: [paste PRD or link]
+```
+
+### 6. Write a technical RFC
+
+```
+@rfc-writer Design doc for adding real-time notifications to the recruitment pipeline
+```
+
+### 7. Estimate effort
+
+```
+@estimator How big is the candidate bulk import feature? Here's the PRD: [paste or link]
+```
+
+### 8. Invoke Athena
 
 ```
 @athena Analyze the last SDLC run — the implementor kept failing QA on input validation
@@ -208,7 +241,10 @@ agentic-sdlc/
 │   ├── tech-writer.agent.md
 │   ├── pr-reviewer.agent.md
 │   ├── athena.agent.md
-│   └── explorer.agent.md
+│   ├── explorer.agent.md
+│   ├── prd-analyst.agent.md       # Pre-SDLC: PRD review
+│   ├── rfc-writer.agent.md        # Pre-SDLC: Technical RFC
+│   └── estimator.agent.md         # Pre-SDLC: Story point estimation
 ├── skills/                      # Plugin skills
 │   └── init-workspace/
 │       └── SKILL.md             # Scaffolds workspace for SDLC workflow
@@ -218,20 +254,22 @@ agentic-sdlc/
     ├── QA_REPORT.md
     ├── ADR.md
     ├── ATHENA_REPORT.md
-    └── PR_FEEDBACK.md
+    ├── PR_FEEDBACK.md
+    ├── RFC.md                   # Technical RFC template
+    └── FEATURE_SPEC.md          # Living feature spec template
 ```
 
 ## How Athena Works
 
-Athena is the continuous improvement meta-agent, operating in two modes:
+Athena is the continuous improvement meta-agent, operating in four modes:
 
-**Micro-reflections (frequent):** After every human "Refine" feedback or PR feedback round, Athena captures what the feedback reveals about instruction gaps. These accumulate in `docs/athena/reflections.jsonl`.
+**Micro-reflections (frequent):** After every human "Refine" feedback or PR feedback round, Athena captures what the feedback reveals. Classifies findings as either agent/workflow improvements (logged to `docs/athena/reflections.jsonl`) or engineering principles (written to `/memories/repo/engineering-principles/`).
 
 **Full reports (infrequent):** Triggered manually, after 2+ QA rejections, or when 5+ micro-reflections accumulate for the same agent. Produces a full diagnostic with root cause analysis and proposed instruction changes.
 
-**Post-run analysis:** Triggered after every completed SDLC run to analyze TRACE.jsonl health metrics.
+**Post-run analysis:** Triggered after every completed SDLC run to analyze TRACE.jsonl health metrics — delegation counts, human gate compliance, violation detection.
 
-**Session analysis:** Parse exported chat sessions (chat.json) to detect delegation violations, thinking trace bypasses, and workflow compliance issues.
+**Session analysis:** Parse exported chat sessions (chat.json) via the `parse-session` skill to detect delegation violations, thinking trace bypasses, and workflow compliance issues. The most powerful diagnostic mode.
 
 Athena is **advisory only** — it never edits agent files directly.
 

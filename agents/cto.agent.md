@@ -61,6 +61,14 @@ Evaluate the plan against **all** of the following:
 - [ ] No hardcoded credentials or secrets in the plan
 - [ ] Error responses do not leak internal details
 
+### Feature Flag Compliance
+- [ ] If the plan introduces new behavior to an existing flow, a feature flag strategy is included
+- [ ] Feature flag scope is appropriate (per-tenant for multi-tenant, global for single-tenant)
+- [ ] The plan specifies behavior for BOTH flag-on and flag-off states
+- [ ] Flag cleanup is planned (not left as permanent tech debt)
+- [ ] If an RFC exists, the feature flag strategy aligns with the RFC's rollout plan
+- [ ] If no feature flag is needed, the plan explicitly states why (e.g., "new additive endpoint, no existing flow modified")
+
 ### Feasibility
 - [ ] The phased approach is logically ordered (no phase depends on a later phase)
 - [ ] The plan is implementable by a single engineer without undefined prerequisites

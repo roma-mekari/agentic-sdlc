@@ -122,6 +122,33 @@
 
 ---
 
+## 🔧 Tech Debt Assessment
+
+> Tech debt identified in the implemented code — both pre-existing (encountered during implementation) and newly introduced.
+
+### Implementor-Flagged Debt
+> Items the Implementor flagged during implementation.
+
+| # | Location | Description | Priority | Action |
+|---|----------|-------------|----------|--------|
+| 1 | `file.go:42` | [Description from Implementor output] | High/Medium/Low | Fix now / Defer |
+
+### TECH_DEBT Markers in Code
+> Structured `TECH_DEBT()` comments found in the implemented code.
+
+| # | Location | Marker | Description |
+|---|----------|--------|-------------|
+| 1 | `file.go:88` | `TECH_DEBT(MEDIUM)` | [Description from comment] |
+
+### Additional Debt Observations
+> Tech debt identified by QA Lead during review.
+
+| # | Location | Description | Priority | Suggested Action |
+|---|----------|-------------|----------|------------------|
+| 1 | `file.go:120` | [What could be improved] | Medium | [Approach] |
+
+---
+
 ## � Plan Drift Detection
 
 > Compare the implemented code against PLAN.md. Note any deviations — added steps, skipped steps, or changes made during implementation or manual editing that diverge from the plan.
@@ -198,6 +225,53 @@
 | Requirements Met | 100% | XX% | ✅/❌ |
 | Plan Steps Completed | 100% | XX% | ✅/❌ |
 | Critical Issues | 0 | X | ✅/❌ |
+
+---
+
+## 🧑‍💻 Developer/QA Test Playbook
+
+> Practical test guide for humans to manually verify this feature. All commands are derived from actual implemented endpoints, handlers, and data structures.
+
+### API Test Commands
+
+#### Happy Path
+```bash
+# [Endpoint description]
+curl -X [METHOD] http://localhost:[PORT]/api/v1/[path] \
+  -H "Authorization: Bearer ${TOKEN}" \
+  -H "Content-Type: application/json" \
+  -d '{"field": "value"}'
+
+# Expected: [status code] [brief expected response]
+```
+
+#### Error Scenarios
+```bash
+# [Scenario: validation failure / auth error / not found]
+curl -X [METHOD] http://localhost:[PORT]/api/v1/[path] \
+  -H "Content-Type: application/json" \
+  -d '{"invalid_field": "bad_value"}'
+
+# Expected: [status code] [error response shape]
+```
+
+### Suggested Backyard APIs
+
+> Dev/staging-only endpoints that simulate or fast-forward complex processes for easier testing.
+
+| Process | Suggested Endpoint | What It Simulates | Why Useful |
+|---------|--------------------|-------------------|------------|
+| [Complex flow] | `POST /backyard/...` | [What it shortcuts] | [Testing benefit] |
+
+### Manual Browser/UI Test Steps
+
+| # | Step | Action | Expected Result |
+|---|------|--------|-----------------|
+| 1 | [Step name] | [What to do] | [What should happen] |
+
+---
+
+## 🎯 Final Recommendation
 | Quality Checks | Pass | Pass/Fail | ✅/❌ |
 | Build Status | Success | Success/Fail | ✅/❌ |
 

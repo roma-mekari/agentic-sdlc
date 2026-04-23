@@ -65,6 +65,25 @@ Follow the conventions provided in the project context. When conventions are not
 - DO NOT leave TODO comments or placeholder logic in committed code.
 - DO NOT break existing passing tests.
 
+## Tech Debt Awareness
+
+While implementing, you MUST actively identify and surface tech debt:
+
+1. **Flag encountered debt** — If you encounter existing tech debt while working (anti-patterns, duplicated logic, missing error handling, outdated patterns), report each item in your output with location and description.
+2. **Suggest in-scope fixes** — If a tech debt item is directly in the code path you're modifying AND the fix is low-risk (< 20 lines changed, no behavioral change), suggest fixing it. Include the fix in your output as a separate "Tech Debt Fix" section with clear before/after.
+3. **Mark future improvements** — When you write code that you know could be improved but is out of scope for the current plan, add a structured comment:
+   ```
+   // TECH_DEBT(<priority>): <description>
+   // Context: <why it was left as-is>
+   // Suggested fix: <brief approach>
+   ```
+   Priority values: `HIGH`, `MEDIUM`, `LOW`. Use this format consistently so it can be discovered by future Explorer scans.
+4. **Never fix silently** — Do NOT fix tech debt without reporting it. Every fix must appear in your output so the orchestrator and QA Lead can track it.
+
+## Engineering Principles
+
+At the start of each run, check if `/memories/repo/engineering-principles/` exists. If it does, read relevant files (matched by concern area — e.g., `error-handling.md`, `logging.md`, `context-propagation.md`). Apply these principles to all code you write. If a principle conflicts with PLAN.md, follow PLAN.md but flag the conflict.
+
 ## Improvement Signals
 
 While implementing, if you encounter any of the following, note them in your output message so the orchestrator can surface them:
@@ -72,6 +91,7 @@ While implementing, if you encounter any of the following, note them in your out
 - The plan's phase ordering caused you to need something from a later phase
 - The project conventions provided are incomplete or inaccurate
 - A test strategy from the plan is impractical to implement as described
+- Engineering principles from memory conflict with the plan or project conventions
 
 ## Output
 
