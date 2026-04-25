@@ -7,28 +7,17 @@ Three-layer testing system for verifying agent definitions and behavior.
 Validates `.agent.md` files for structural correctness without using any LLM.
 
 ```bash
-# Run all checks
-python tests/static/validate_agents.py
+# Run all checks (requires uv — https://docs.astral.sh/uv/)
+uv run tests/static/validate_agents.py
 
 # Treat warnings as errors
-python tests/static/validate_agents.py --strict
+uv run tests/static/validate_agents.py --strict
 
 # Custom paths
-python tests/static/validate_agents.py --agents-dir ./agents --templates-dir ./workflow_templates
+uv run tests/static/validate_agents.py --agents-dir ./agents --templates-dir ./workflow_templates
 ```
 
-**Checks performed:**
-- Required frontmatter fields (`name`, `description`, `tools`)
-- Valid VS Code tool names
-- Per-agent tool rules (e.g., CTO should not have `edit`)
-- Required sections (`Role Boundary`, `Invocation Verification`)
-- Template references point to real files
-- Stage numbers in descriptions match expected workflow positions
-- `user-invocable` flag matches agent type
-- Cross-agent consistency (no orphans, no duplicates)
-- `init-workspace` skill references all templates
-
-**Install:** `pip install -r tests/static/requirements.txt`
+**Prerequisites:** [uv](https://docs.astral.sh/uv/) (recommended) or python3 + pyyaml as fallback.
 
 ## Layer 2: Behavioral Tests (LLM cost, manual/scheduled trigger)
 
@@ -110,7 +99,7 @@ bash tests/static/setup-hooks.sh
 git push --no-verify
 ```
 
-The hook only runs when files in `agents/`, `workflow_templates/`, `skills/`, `.plugin/`, or `tests/static/validate_agents.py` are included in the push.
+The hook prefers `uv run` (auto-resolves pyyaml via PEP 723 inline metadata) and falls back to `python3` if pyyaml is already installed. It only runs when files in `agents/`, `workflow_templates/`, `skills/`, `.plugin/`, or `tests/static/validate_agents.py` are included in the push.
 
 ## Adding Tests for New Agents
 

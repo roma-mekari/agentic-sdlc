@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # Pre-push hook: runs static validation on agent definitions before allowing push.
 #
-# Setup:  git config --local core.hooksPath .githooks
-# Or run: ./tests/static/setup-hooks.sh
+# Setup: bash tests/static/setup-hooks.sh
 
 set -euo pipefail
 
@@ -14,17 +13,16 @@ if [ ! -f "$VALIDATOR" ]; then
     exit 0
 fi
 
-if ! command -v python3 &>/dev/null; then
-    echo "⚠️  python3 not found — skipping agent validation."
+if command -v uv &>/dev/null; then
+    RUN_CMD="uv run --no-project $VALIDATOR"
+elif command -v python3 &>/dev/null && python3 -c "import yaml" 2>/dev/null; then
+    RUN_CMD="python3 $VALIDATOR"
+else
+    echo "⚠️  Neither uv nor python3+pyyaml available — skipping agent validation."
+    echo "   Install uv: https://docs.astral.sh/uv/getting-started/installation/"
     exit 0
 fi
 
-if ! python3 -c "import yaml" 2>/dev/null; then
-    echo "⚠️  pyyaml not installed — skipping agent validation. Run: pip install pyyaml"
-    exit 0
-fi
-
-# Only run if agent/template/skill files changed in this push
 REMOTE_REF="${2:-HEAD}"
 LOCAL_REF="${1:-HEAD}"
 
@@ -52,10 +50,10 @@ fi
 
 echo "── Running agent static validation ──"
 
-if ! python3 "$VALIDATOR"; then
+if ! $RUN_CMD; then
     echo ""
     echo "❌ Agent validation failed. Fix the issues above before pushing."
-    echo "   Run locally: python tests/static/validate_agents.py"
+    echo "   Run locally: uv run tests/static/validate_agents.py"
     echo "   Bypass:      git push --no-verify"
     exit 1
 fi

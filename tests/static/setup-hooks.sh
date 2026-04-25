@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # Set up git hooks for this repository.
 #
-# Usage: source tests/static/setup-hooks.sh
-#    or: bash tests/static/setup-hooks.sh
+# Usage: bash tests/static/setup-hooks.sh
 
 set -euo pipefail
 
@@ -18,6 +17,9 @@ chmod +x "$REPO_ROOT/.githooks/pre-push"
 
 echo "✅ Git hooks configured."
 echo "   core.hooksPath = .githooks"
-echo "   pre-push hook will run agent validation before allowing push."
+echo ""
+echo "Prerequisites (one of):"
+echo "   uv          — https://docs.astral.sh/uv/getting-started/installation/ (recommended)"
+echo "   python3 + pyyaml — pip install pyyaml (fallback)"
 echo ""
 echo "To skip validation on a specific push: git push --no-verify"
