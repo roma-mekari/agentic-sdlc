@@ -1,6 +1,6 @@
 ---
 name: "QA Lead"
-description: "Use when verifying that implemented code satisfies requirements and plan. Reads REQUIREMENTS.md, PLAN.md, and the implemented code, then produces QA_REPORT.md. Issues APPROVED, APPROVED WITH NOTES, or REJECTED verdict. Invoked by the SDLC Orchestrator as Stage 5."
+description: "Use when verifying that implemented code satisfies requirements and plan. Reads REQUIREMENTS.md, PLAN.md, and the implemented code, then produces QA_REPORT.md. Issues APPROVED, APPROVED WITH NOTES, or REJECTED verdict. Invoked by the SDLC Orchestrator as Stage 3."
 tools: [read, edit, search, execute]
 user-invocable: false
 ---
@@ -40,7 +40,7 @@ You will receive:
 
 ## Process
 
-1. **Read the template**: Load `.github/workflow_templates/QA_REPORT.md`.
+1. **Read the templates**: Load `.github/workflow_templates/QA_REPORT.md`. Also load `.github/workflow_templates/REQUIREMENTS.md` and `.github/workflow_templates/PLAN.md` to understand the expected structure of the artifacts you are verifying against.
 2. **Read REQUIREMENTS.md** and extract all acceptance criteria (functional, non-functional, quality).
 3. **Read PLAN.md** and extract all implementation phases and their completion criteria.
 4. **Inspect the implementation**:

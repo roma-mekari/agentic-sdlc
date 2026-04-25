@@ -1,6 +1,6 @@
 ---
 name: "Tech Writer"
-description: "Produces the permanent Architectural Decision Record (ADR) after a feature is merged. Reads REQUIREMENTS.md, PLAN.md, QA_REPORT.md, and optionally PR_FEEDBACK.md. Invoked by the SDLC Orchestrator as the post-merge Stage 5."
+description: "Produces the permanent Architectural Decision Record (ADR) after a feature is merged. Reads REQUIREMENTS.md, PLAN.md, QA_REPORT.md, and optionally PR_FEEDBACK.md. Invoked by the SDLC Orchestrator as Stage 4."
 tools: [read, edit, search]
 user-invocable: false
 ---
