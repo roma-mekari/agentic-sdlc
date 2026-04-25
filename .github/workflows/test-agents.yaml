@@ -1,0 +1,110 @@
+name: Test Agent Definitions
+
+on:
+  pull_request:
+    paths:
+      - 'agents/**'
+      - 'skills/**'
+      - 'workflow_templates/**'
+      - 'tests/**'
+      - '.plugin/**'
+  push:
+    branches: [main]
+    paths:
+      - 'agents/**'
+      - 'skills/**'
+      - 'workflow_templates/**'
+      - 'tests/**'
+      - '.plugin/**'
+  workflow_dispatch:
+    inputs:
+      run_behavioral:
+        description: 'Run behavioral tests (costs LLM tokens)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+jobs:
+  static-validation:
+    runs-on: ubuntu-latest
+    name: Static Agent Validation
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: Run static validation
+        run: python tests/static/validate_agents.py
+
+  behavioral-tests:
+    runs-on: ubuntu-latest
+    name: Behavioral Agent Tests
+    if: github.event.inputs.run_behavioral == 'true' || github.event_name == 'workflow_dispatch'
+    needs: static-validation
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install promptfoo
+        run: npm install -g promptfoo
+
+      - name: Run architect behavioral tests
+        if: always()
+        run: promptfoo eval -c tests/behavioral/architect.boundary.yaml --no-cache
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Run CTO behavioral tests
+        if: always()
+        run: promptfoo eval -c tests/behavioral/cto.boundary.yaml --no-cache
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Run PO behavioral tests
+        if: always()
+        run: promptfoo eval -c tests/behavioral/po.boundary.yaml --no-cache
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Run implementor behavioral tests
+        if: always()
+        run: promptfoo eval -c tests/behavioral/implementor.boundary.yaml --no-cache
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Run explorer behavioral tests
+        if: always()
+        run: promptfoo eval -c tests/behavioral/explorer.boundary.yaml --no-cache
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Run orchestrator behavioral tests
+        if: always()
+        run: promptfoo eval -c tests/behavioral/orchestrator.workflow.yaml --no-cache
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Run QA Lead behavioral tests
+        if: always()
+        run: promptfoo eval -c tests/behavioral/qa-lead.boundary.yaml --no-cache
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Run red-team tests
+        if: always()
+        run: promptfoo eval -c tests/behavioral/red-team/role-escape.yaml --no-cache
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

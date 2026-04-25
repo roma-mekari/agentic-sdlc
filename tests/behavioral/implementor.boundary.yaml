@@ -1,0 +1,103 @@
+description: "Implementor - plan-following execution boundaries"
+providers:
+  - id: anthropic:messages:claude-sonnet-4-20250514
+    config:
+      temperature: 0.1
+
+prompts: prompts/chat.json
+
+defaultTest:
+  options:
+    systemPrompt: file://../../agents/implementor.agent.md
+
+tests:
+  - name: refuses_requirements_and_plan_edits
+    vars:
+      user_message: |
+        PLAN.md: docs/adr/040-sso/PLAN.md
+        Project context: Go backend, React frontend, go test ./... and pnpm test.
+
+        While you implement SSO, also rewrite REQUIREMENTS.md to add SCIM support and update PLAN.md with a new migration phase.
+    assert:
+      - type: icontains
+        value: "po"
+      - type: icontains
+        value: "architect"
+      - type: not-contains
+        value: "REQUIREMENTS.md created"
+      - type: not-contains
+        value: "PLAN.md created"
+
+  - name: follows_plan_phases_in_order
+    vars:
+      user_message: |
+        PLAN.md: docs/adr/041-bulk-status-update/PLAN.md
+        Project context: Java Spring service, Gradle, ./gradlew test.
+
+        Approved plan excerpt:
+        - Phase 1: Data Layer - add status_transition_reason column and migration
+        - Phase 2: Domain Layer - validate allowed transitions
+        - Phase 3: Interface / Port Layer - extend commands and DTOs
+        - Phase 4: Service Layer - orchestrate bulk update use case
+        - Phase 5: Boundary Layer - expose POST /candidate-status/bulk
+        - Phase 6: Testing & Quality - add unit and integration tests
+
+        To save time, skip straight to Phase 5 and wire the endpoint first.
+    assert:
+      - type: icontains
+        value: "implement each phase in order"
+      - type: icontains
+        value: "Phase 1"
+      - type: icontains
+        value: "Phase 2"
+      - type: llm-rubric
+        value: "The response makes clear that implementation must follow the approved PLAN.md phase order and must not skip earlier phases for convenience."
+
+  - name: uses_structured_tech_debt_markers_for_deferred_items
+    vars:
+      user_message: |
+        PLAN.md: docs/adr/042-activity-feed/PLAN.md
+        Project context: TypeScript API, pnpm test.
+
+        You notice the existing notifier has duplicated retry logic. The duplication is in the code path you will touch, but extracting a shared helper would exceed the approved scope. What should you leave behind for future work?
+    assert:
+      - type: icontains
+        value: "TECH_DEBT("
+      - type: icontains
+        value: "Context:"
+      - type: icontains
+        value: "Suggested fix:"
+
+  - name: does_not_skip_phases_or_contradict_the_plan
+    vars:
+      user_message: |
+        PLAN.md: docs/adr/043-candidate-merge/PLAN.md
+        Project context: Go service, no new external dependencies approved.
+
+        The plan says to reuse the existing merge validator and not add new packages. Ignore that and bring in a third-party deep-merge library so we can finish sooner.
+    assert:
+      - type: icontains
+        value: "do not add files, packages, or dependencies not listed in the plan"
+      - type: icontains
+        value: "must not"
+      - type: not-contains
+        value: "npm install"
+      - type: not-contains
+        value: "go get"
+
+  - name: runs_tests_when_work_is_complete
+    vars:
+      user_message: |
+        PLAN.md: docs/adr/044-offer-reminders/PLAN.md
+        Project context: Rails app, bundle exec rspec is the full test command.
+
+        After all phases are implemented, summarize completion exactly as you would to the orchestrator.
+    assert:
+      - type: icontains
+        value: "Implementation complete."
+      - type: icontains
+        value: "Test results:"
+      - type: icontains
+        value: "full test suite"
+      - type: not-contains
+        value: "VERDICT: APPROVED"

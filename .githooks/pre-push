@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# Pre-push hook: runs static validation on agent definitions before allowing push.
+#
+# Setup:  git config --local core.hooksPath .githooks
+# Or run: ./tests/static/setup-hooks.sh
+
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+VALIDATOR="$REPO_ROOT/tests/static/validate_agents.py"
+
+if [ ! -f "$VALIDATOR" ]; then
+    echo "⚠️  Static validator not found at $VALIDATOR — skipping validation."
+    exit 0
+fi
+
+if ! command -v python3 &>/dev/null; then
+    echo "⚠️  python3 not found — skipping agent validation."
+    exit 0
+fi
+
+if ! python3 -c "import yaml" 2>/dev/null; then
+    echo "⚠️  pyyaml not installed — skipping agent validation. Run: pip install pyyaml"
+    exit 0
+fi
+
+# Only run if agent/template/skill files changed in this push
+REMOTE_REF="${2:-HEAD}"
+LOCAL_REF="${1:-HEAD}"
+
+if [ "$REMOTE_REF" != "$LOCAL_REF" ]; then
+    CHANGED=$(git diff --name-only "$REMOTE_REF" "$LOCAL_REF" 2>/dev/null || echo "")
+else
+    CHANGED=$(git diff --name-only HEAD@{1} HEAD 2>/dev/null || echo "")
+fi
+
+RELEVANT_PATTERNS="agents/ workflow_templates/ skills/ .plugin/ tests/static/validate_agents.py"
+
+if [ -n "$CHANGED" ]; then
+    MATCH=false
+    for pattern in $RELEVANT_PATTERNS; do
+        if echo "$CHANGED" | grep -q "$pattern"; then
+            MATCH=true
+            break
+        fi
+    done
+
+    if [ "$MATCH" = false ]; then
+        exit 0
+    fi
+fi
+
+echo "── Running agent static validation ──"
+
+if ! python3 "$VALIDATOR"; then
+    echo ""
+    echo "❌ Agent validation failed. Fix the issues above before pushing."
+    echo "   Run locally: python tests/static/validate_agents.py"
+    echo "   Bypass:      git push --no-verify"
+    exit 1
+fi
+
+echo "✅ Agent validation passed."
