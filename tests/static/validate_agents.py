@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["pyyaml>=6.0"]
+# ///
 """Static validation for Agentic SDLC agent definitions.
 
 Validates .agent.md files for structural correctness, tool declarations,
 role boundaries, template references, stage numbers, and cross-agent consistency.
 
 Usage:
-    python validate_agents.py [--agents-dir AGENTS_DIR] [--templates-dir TEMPLATES_DIR] [--skills-dir SKILLS_DIR]
+    uv run tests/static/validate_agents.py [--agents-dir AGENTS_DIR] [--templates-dir TEMPLATES_DIR]
 
 Exit codes:
     0 — All checks passed (warnings may exist)
