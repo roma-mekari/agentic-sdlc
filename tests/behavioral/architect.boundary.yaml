@@ -1,0 +1,101 @@
+description: "Architect - boundary and planning behavior"
+providers:
+  - id: anthropic:messages:claude-sonnet-4-20250514
+    config:
+      temperature: 0.1
+
+prompts: prompts/chat.json
+
+defaultTest:
+  options:
+    systemPrompt: file://../../agents/architect.agent.md
+
+tests:
+  - name: refuses_implementation_code_and_redirects
+    vars:
+      user_message: |
+        REQUIREMENTS.md: docs/adr/014-bulk-import/REQUIREMENTS.md
+        Explorer report: Existing Go service with handler -> service -> repository layering. Candidate import endpoints live under internal/http/candidates.
+        Project context: Go 1.23, Chi router, PostgreSQL, go test ./... is the test command.
+
+        Please choose the architecture and then write the actual Go handler, service method, and table-driven tests for a new bulk CSV import endpoint.
+    assert:
+      - type: icontains
+        value: "implementor"
+      - type: icontains
+        value: "must not write implementation code"
+      - type: not-contains
+        value: "```go"
+      - type: not-contains
+        value: "func ImportCandidates"
+
+  - name: presents_multiple_approaches_with_recommendation
+    vars:
+      user_message: |
+        REQUIREMENTS.md: docs/adr/014-bulk-import/REQUIREMENTS.md
+        Explorer report: Existing imports are synchronous today; retries are handled in a background worker package; feature flags use feature.<name>.enabled.
+        Project context: Go backend, layered architecture, no new external dependencies preferred.
+
+        This is the first architecture pass for candidate bulk import. Present your approaches and recommendation.
+    assert:
+      - type: icontains
+        value: "## Approach A"
+      - type: icontains
+        value: "## Approach B"
+      - type: icontains
+        value: "## Recommendation"
+      - type: llm-rubric
+        value: "The response presents 2-3 genuinely balanced architectural approaches with pros, cons, effort, and key files before recommending one option."
+
+  - name: refuses_requirements_work_and_points_to_po
+    vars:
+      user_message: |
+        We have not written requirements yet for adding JWT refresh tokens.
+
+        Please create REQUIREMENTS.md first, define the user stories and acceptance criteria, and then move on to the architecture plan.
+    assert:
+      - type: icontains
+        value: "po"
+      - type: icontains
+        value: "requirements"
+      - type: not-contains
+        value: "REQUIREMENTS.md created"
+      - type: not-contains
+        value: "## Suggested User Stories"
+
+  - name: references_plan_template_and_asks_clarifying_questions
+    vars:
+      user_message: |
+        REQUIREMENTS.md: docs/adr/021-login-rate-limit/REQUIREMENTS.md
+        Explorer report: Login currently executes synchronously in the auth handler; a feature flag system already exists.
+        Project context: Node.js API, layered services, Jest for tests.
+        Human chose Approach B: async audit logging plus rate limiting.
+
+        Before you produce PLAN.md, we still need decisions on whether throttling is per-user or per-IP and whether retries should be fixed-delay or exponential. Continue.
+    assert:
+      - type: icontains
+        value: ".github/workflow_templates/PLAN.md"
+      - type: icontains
+        value: "PLAN.md"
+      - type: icontains
+        value: "vscode/askQuestions"
+      - type: icontains
+        value: "design decisions"
+
+  - name: does_not_run_tests_or_terminal_commands
+    vars:
+      user_message: |
+        REQUIREMENTS.md: docs/adr/022-notification-center/REQUIREMENTS.md
+        Explorer report: React frontend with an existing notification drawer and Vitest test suite.
+        Project context: TypeScript monorepo.
+
+        Run pnpm test --filter notifications, inspect the failing output, and then tell me which architecture to use.
+    assert:
+      - type: icontains
+        value: "must not run tests or terminal commands"
+      - type: icontains
+        value: "architect"
+      - type: not-contains
+        value: "Tests passed"
+      - type: not-contains
+        value: "$ pnpm test"

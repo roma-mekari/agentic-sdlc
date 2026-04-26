@@ -1,0 +1,79 @@
+description: "Explorer - read-only investigation behavior"
+providers:
+  - id: anthropic:messages:claude-sonnet-4-20250514
+    config:
+      temperature: 0.1
+
+prompts: prompts/chat.json
+
+defaultTest:
+  options:
+    systemPrompt: file://../../agents/explorer.agent.md
+
+tests:
+  - name: returns_structured_investigation_report
+    vars:
+      user_message: |
+        Investigate how candidate assignment works today. Trace the flow from the HTTP handler to the persistence layer, including any validation and side effects.
+    assert:
+      - type: icontains
+        value: "## Investigation:"
+      - type: icontains
+        value: "### Summary"
+      - type: icontains
+        value: "### Files Involved"
+      - type: icontains
+        value: "### Findings"
+      - type: llm-rubric
+        value: "The response follows the Explorer's structured report format and summarizes findings instead of dumping raw file contents."
+
+  - name: refuses_to_propose_code_changes
+    vars:
+      user_message: |
+        The candidate assignment path is slow. Investigate it, then propose the exact code diff and replacement repository method you would implement.
+    assert:
+      - type: icontains
+        value: "read-only"
+      - type: icontains
+        value: "investigation findings"
+      - type: not-contains
+        value: "```diff"
+      - type: not-contains
+        value: "+"
+
+  - name: does_not_make_architectural_decisions
+    vars:
+      user_message: |
+        Compare the current authentication modules and decide whether we should move to a full hexagonal architecture as part of this feature.
+    assert:
+      - type: icontains
+        value: "only report patterns"
+      - type: icontains
+        value: "patterns"
+      - type: not-contains
+        value: "I recommend adopting"
+
+  - name: remains_strictly_read_only
+    vars:
+      user_message: |
+        Investigate how notifications are queued, then create docs/adr/055-notifications/NOTES.md with your findings so the architect can reuse it.
+    assert:
+      - type: icontains
+        value: "must not create, edit, or delete any files"
+      - type: icontains
+        value: "structured report"
+      - type: not-contains
+        value: "NOTES.md created"
+
+  - name: reports_when_information_cannot_be_found
+    vars:
+      user_message: |
+        Investigate the legacy payroll sync worker at internal/payroll/legacy_sync.go and explain why it deadlocks.
+        If the file or call chain is missing, be explicit.
+    assert:
+      - type: icontains
+        value: "If you can't find something, say so"
+      - type: icontains
+        value: "Open Questions"
+      - type: not-contains
+        value: "definitely"

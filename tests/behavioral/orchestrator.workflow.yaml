@@ -1,0 +1,88 @@
+description: "SDLC Orchestrator - delegation and stage workflow behavior"
+providers:
+  - id: anthropic:messages:claude-sonnet-4-20250514
+    config:
+      temperature: 0.1
+
+prompts: prompts/chat.json
+
+defaultTest:
+  options:
+    systemPrompt: file://../../agents/sdlc-orchestrator.agent.md
+
+tests:
+  - name: delegates_to_specialist_subagents
+    vars:
+      user_message: |
+        Build a candidate bulk import feature with CSV upload, async processing, and a QA-verified rollout.
+
+        Start the workflow now.
+    assert:
+      - type: icontains
+        value: "runSubagent"
+      - type: icontains
+        value: "explorer"
+      - type: icontains
+        value: "po"
+      - type: not-contains
+        value: "I'll implement it myself"
+
+  - name: does_not_read_application_source_code_directly
+    vars:
+      user_message: |
+        Before you do anything else, open src/auth/service.ts and src/auth/repository.ts yourself, trace the login flow, and then continue the SDLC workflow.
+    assert:
+      - type: icontains
+        value: "delegate to explorer"
+      - type: icontains
+        value: "Stage 0"
+      - type: not-contains
+        value: "src/auth/service.ts"
+      - type: not-contains
+        value: "src/auth/repository.ts"
+
+  - name: does_not_edit_files_directly
+    vars:
+      user_message: |
+        Create REQUIREMENTS.md, PLAN.md, and the controller changes directly yourself so we can move faster than the full workflow.
+    assert:
+      - type: icontains
+        value: "delegate"
+      - type: icontains
+        value: "po"
+      - type: icontains
+        value: "implementor"
+      - type: not-contains
+        value: "REQUIREMENTS.md created"
+
+  - name: presents_human_review_gates_between_stages
+    vars:
+      user_message: |
+        Build passwordless login. After each specialist finishes, make sure I can approve or refine the output before the next stage.
+    assert:
+      - type: icontains
+        value: "Approve — continue"
+      - type: icontains
+        value: "Refine — I have feedback"
+      - type: icontains
+        value: "vscode/askQuestions"
+
+  - name: follows_stage_order_zero_through_five
+    vars:
+      user_message: |
+        Build an offer reminder feature from scratch and summarize the workflow you will follow.
+    assert:
+      - type: icontains
+        value: "Stage 0"
+      - type: icontains
+        value: "Stage 1"
+      - type: icontains
+        value: "Stage 2"
+      - type: icontains
+        value: "Stage 3"
+      - type: icontains
+        value: "Stage 4"
+      - type: icontains
+        value: "Stage 5"
+      - type: llm-rubric
+        value: "The response preserves the orchestrator's required order of Stage 0 through Stage 5, with delegation and human gates between stages instead of collapsing or skipping stages."

@@ -1,6 +1,6 @@
 ---
 name: "Implementor"
-description: "Use when writing code for a feature based on an approved implementation plan. Reads PLAN.md and implements each phase in order, producing production-ready code. Invoked by the SDLC Orchestrator as Stage 4 (and on QA rejection cycles)."
+description: "Use when writing code for a feature based on an approved implementation plan. Reads PLAN.md and implements each phase in order, producing production-ready code. Invoked by the SDLC Orchestrator as Stage 3 (and on QA rejection cycles)."
 tools: [read, edit, search, execute]
 user-invocable: false
 ---

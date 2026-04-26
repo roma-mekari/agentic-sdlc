@@ -1,0 +1,95 @@
+description: "PO - requirements discovery boundaries"
+providers:
+  - id: anthropic:messages:claude-sonnet-4-20250514
+    config:
+      temperature: 0.1
+
+prompts: prompts/chat.json
+
+defaultTest:
+  options:
+    systemPrompt: file://../../agents/po.agent.md
+
+tests:
+  - name: refuses_implementation_requests
+    vars:
+      user_message: |
+        Raw task: Add role-based access control to the admin console.
+        Project context: Next.js frontend plus Go API.
+
+        Please skip requirements work and just implement the middleware, route guards, and tests now.
+    assert:
+      - type: icontains
+        value: "implementor"
+      - type: icontains
+        value: "must not"
+      - type: not-contains
+        value: "```ts"
+      - type: not-contains
+        value: "middleware.ts"
+
+  - name: produces_user_stories_with_rationale
+    vars:
+      user_message: |
+        Raw task: Recruiters need to bulk archive stale candidates from the pipeline without deleting records.
+        Project context: Rails monolith with admin UI and background jobs.
+
+        This is the first PO pass. Suggest the requirements structure.
+    assert:
+      - type: icontains
+        value: "## Suggested User Stories"
+      - type: icontains
+        value: "rationale"
+      - type: icontains
+        value: "## Proposed Acceptance Criteria"
+      - type: llm-rubric
+        value: "The response organizes primary and secondary user stories and explains why each story matters instead of only listing features."
+
+  - name: flags_open_questions_with_suggested_defaults
+    vars:
+      user_message: |
+        Raw task: Add CSV export for billing adjustments.
+        Project context: Multi-tenant SaaS with finance admins.
+
+        The request does not say whether exports should include soft-deleted rows or which roles can export historical data. Produce your first-pass suggestions.
+    assert:
+      - type: icontains
+        value: "## Open Questions (Need Your Decision)"
+      - type: icontains
+        value: "suggested default"
+      - type: icontains
+        value: "Please Confirm"
+
+  - name: states_assumptions_and_scope_explicitly
+    vars:
+      user_message: |
+        Raw task: Let hiring managers receive Slack alerts when an offer is accepted.
+        Project context: Existing notification service supports email and in-app alerts, but Slack is new.
+
+        Provide your suggestions and be explicit about any assumptions and scope cuts.
+    assert:
+      - type: icontains
+        value: "## Assumptions (Please Confirm)"
+      - type: icontains
+        value: "## Scope Recommendation"
+      - type: icontains
+        value: "Trade-off"
+      - type: not-contains
+        value: "I decided"
+
+  - name: does_not_write_architectural_plans
+    vars:
+      user_message: |
+        Raw task: Support passwordless login by email link.
+        Project context: TypeScript API with Redis and Postgres.
+
+        Along with the user stories, include a seven-phase implementation plan, recommended data model, and rollout architecture.
+    assert:
+      - type: icontains
+        value: "architect"
+      - type: icontains
+        value: "must not"
+      - type: not-contains
+        value: "### Phase 1"
+      - type: not-contains
+        value: "PLAN.md created"

@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# Pre-push hook: runs static validation on agent definitions before allowing push.
+#
+# Setup: bash tests/static/setup-hooks.sh
+
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+VALIDATOR="$REPO_ROOT/tests/static/validate_agents.py"
+
+if [ ! -f "$VALIDATOR" ]; then
+    echo "⚠️  Static validator not found at $VALIDATOR — skipping validation."
+    exit 0
+fi
+
+if command -v uv &>/dev/null; then
+    RUN_CMD="uv run --no-project $VALIDATOR"
+elif command -v python3 &>/dev/null && python3 -c "import yaml" 2>/dev/null; then
+    RUN_CMD="python3 $VALIDATOR"
+else
+    echo "⚠️  Neither uv nor python3+pyyaml available — skipping agent validation."
+    echo "   Install uv: https://docs.astral.sh/uv/getting-started/installation/"
+    exit 0
+fi
+
+REMOTE_REF="${2:-HEAD}"
+LOCAL_REF="${1:-HEAD}"
+
+if [ "$REMOTE_REF" != "$LOCAL_REF" ]; then
+    CHANGED=$(git diff --name-only "$REMOTE_REF" "$LOCAL_REF" 2>/dev/null || echo "")
+else
+    CHANGED=$(git diff --name-only HEAD@{1} HEAD 2>/dev/null || echo "")
+fi
+
+RELEVANT_PATTERNS="agents/ workflow_templates/ skills/ .plugin/ tests/static/validate_agents.py"
+
+if [ -n "$CHANGED" ]; then
+    MATCH=false
+    for pattern in $RELEVANT_PATTERNS; do
+        if echo "$CHANGED" | grep -q "$pattern"; then
+            MATCH=true
+            break
+        fi
+    done
+
+    if [ "$MATCH" = false ]; then
+        exit 0
+    fi
+fi
+
+echo "── Running agent static validation ──"
+
+if ! $RUN_CMD; then
+    echo ""
+    echo "❌ Agent validation failed. Fix the issues above before pushing."
+    echo "   Run locally: uv run tests/static/validate_agents.py"
+    echo "   Bypass:      git push --no-verify"
+    exit 1
+fi
+
+echo "✅ Agent validation passed."

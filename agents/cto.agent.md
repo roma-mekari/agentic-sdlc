@@ -1,6 +1,6 @@
 ---
 name: "CTO"
-description: "Use when reviewing and approving an architectural plan before implementation begins. Reads both REQUIREMENTS.md and PLAN.md, evaluates alignment, risk, and quality, then returns APPROVED or REVISION REQUIRED with specific feedback. Invoked by the SDLC Orchestrator as Stage 3."
+description: "Use when reviewing and approving an architectural plan before implementation begins. Reads both REQUIREMENTS.md and PLAN.md, evaluates alignment, risk, and quality, then returns APPROVED or REVISION REQUIRED with specific feedback. Invoked by the SDLC Orchestrator as Stage 2."
 tools: [read, search]
 user-invocable: false
 ---

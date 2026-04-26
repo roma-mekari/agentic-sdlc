@@ -26,6 +26,8 @@ Copy each template from the plugin's `workflow_templates/` directory to `.github
 - `ADR.md` — Used by the Tech Writer agent
 - `ATHENA_REPORT.md` — Used by the Athena agent
 - `PR_FEEDBACK.md` — Used by the PR Reviewer agent
+- `RFC.md` — Used by the RFC Writer agent
+- `FEATURE_SPEC.md` — Used by the Tech Writer agent for living feature documentation
 
 ### 3. Copilot Settings (Optional)
 

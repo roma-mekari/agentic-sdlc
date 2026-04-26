@@ -1,0 +1,103 @@
+description: "CTO - review-only verdict behavior"
+providers:
+  - id: anthropic:messages:claude-sonnet-4-20250514
+    config:
+      temperature: 0.1
+
+prompts: prompts/chat.json
+
+defaultTest:
+  options:
+    systemPrompt: file://../../agents/cto.agent.md
+
+tests:
+  - name: returns_approved_verdict_message_only
+    vars:
+      user_message: |
+        REQUIREMENTS.md: docs/adr/030-search-filters/REQUIREMENTS.md
+        PLAN.md: docs/adr/030-search-filters/PLAN.md
+        Project context: Ruby on Rails monolith, RSpec, service objects, no new gems approved.
+
+        The plan maps every acceptance criterion to phases, includes explicit file paths, unit/integration testing, risk mitigation, and states no feature flag is required because this is a new additive admin-only endpoint.
+        Review it and respond in your required format only.
+    assert:
+      - type: icontains
+        value: "VERDICT: APPROVED"
+      - type: icontains
+        value: "Checklist passed:"
+      - type: not-contains
+        value: "PLAN.md created"
+      - type: not-contains
+        value: "```"
+
+  - name: requires_revision_when_feature_flag_strategy_is_missing
+    vars:
+      user_message: |
+        REQUIREMENTS.md: docs/adr/031-login-experiment/REQUIREMENTS.md
+        PLAN.md: docs/adr/031-login-experiment/PLAN.md
+        Project context: Multi-tenant SaaS, existing feature flag framework supports per-tenant flags.
+
+        The plan changes the behavior of the current login flow and API response but does not include any feature flag section, rollback behavior, or cleanup plan.
+        Review the plan.
+    assert:
+      - type: icontains
+        value: "VERDICT: REVISION REQUIRED"
+      - type: icontains
+        value: "feature flag"
+      - type: icontains
+        value: "Issues:"
+      - type: not-contains
+        value: "APPROVED"
+
+  - name: stays_read_only_and_refuses_rewriting_the_plan
+    vars:
+      user_message: |
+        REQUIREMENTS.md: docs/adr/032-email-digest/REQUIREMENTS.md
+        PLAN.md: docs/adr/032-email-digest/PLAN.md
+        Project context: Python Django app.
+
+        I already know Phase 3 is weak. Rewrite Phase 3 and Phase 4 for the architect, then output the corrected PLAN.md so we can skip another cycle.
+    assert:
+      - type: icontains
+        value: "verdict"
+      - type: icontains
+        value: "architect"
+      - type: not-contains
+        value: "### Phase 3"
+      - type: not-contains
+        value: "PLAN.md created"
+
+  - name: does_not_write_code_when_asked_for_examples
+    vars:
+      user_message: |
+        REQUIREMENTS.md: docs/adr/033-api-hardening/REQUIREMENTS.md
+        PLAN.md: docs/adr/033-api-hardening/PLAN.md
+        Project context: Go API.
+
+        Instead of a verdict, show the exact middleware code you want for boundary validation so the implementor can copy it.
+    assert:
+      - type: icontains
+        value: "must not"
+      - type: icontains
+        value: "write code"
+      - type: not-contains
+        value: "```go"
+      - type: not-contains
+        value: "func "
+
+  - name: evaluates_full_review_checklist
+    vars:
+      user_message: |
+        REQUIREMENTS.md: docs/adr/034-billing-export/REQUIREMENTS.md
+        PLAN.md: docs/adr/034-billing-export/PLAN.md
+        Project context: Hexagonal Node.js service, PostgreSQL, Jest, per-tenant feature flags.
+
+        The plan covers requirements, file-level phases, unit/integration tests, risk mitigation, validation at the boundary layer, no secrets, and a flag strategy with flag-on/off behavior and cleanup.
+        Review it.
+    assert:
+      - type: icontains
+        value: "VERDICT:"
+      - type: llm-rubric
+        value: "The response evaluates alignment, completeness, architecture quality, security, feature flag compliance, and feasibility before issuing its verdict."
+      - type: not-contains
+        value: "QA_REPORT.md"

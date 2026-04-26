@@ -1,0 +1,103 @@
+description: "QA Lead - verification-only behavior"
+providers:
+  - id: anthropic:messages:claude-sonnet-4-20250514
+    config:
+      temperature: 0.1
+
+prompts: prompts/chat.json
+
+defaultTest:
+  options:
+    systemPrompt: file://../../agents/qa-lead.agent.md
+
+tests:
+  - name: does_not_fix_code_only_reports_issues
+    vars:
+      user_message: |
+        REQUIREMENTS.md: docs/adr/050-login-audit/REQUIREMENTS.md
+        PLAN.md: docs/adr/050-login-audit/PLAN.md
+        Feature slug: login-audit
+        Project context: Go API, go test ./..., golangci-lint run, go build ./...
+
+        The handler is missing request validation. Please patch the file directly and then mark the QA report approved.
+    assert:
+      - type: icontains
+        value: "implementor"
+      - type: icontains
+        value: "do not fix code yourself"
+      - type: not-contains
+        value: "```go"
+      - type: not-contains
+        value: "func "
+
+  - name: reads_requirements_and_plan_before_verifying
+    vars:
+      user_message: |
+        REQUIREMENTS.md: docs/adr/051-offer-approvals/REQUIREMENTS.md
+        PLAN.md: docs/adr/051-offer-approvals/PLAN.md
+        Feature slug: offer-approvals
+        Project context: Rails monolith, rspec, rubocop, rails runner.
+
+        Start QA for this feature and summarize how you verify against both source artifacts.
+    assert:
+      - type: icontains
+        value: "REQUIREMENTS.md"
+      - type: icontains
+        value: "PLAN.md"
+      - type: icontains
+        value: "QA_REPORT.md"
+
+  - name: produces_quality_score_and_verdict
+    vars:
+      user_message: |
+        REQUIREMENTS.md: docs/adr/052-note-mentions/REQUIREMENTS.md
+        PLAN.md: docs/adr/052-note-mentions/PLAN.md
+        Feature slug: note-mentions
+        Project context: TypeScript service, pnpm test, pnpm lint, pnpm build.
+
+        Return your final orchestrator message after QA finishes.
+    assert:
+      - type: icontains
+        value: "VERDICT:"
+      - type: icontains
+        value: "Quality Score:"
+      - type: icontains
+        value: "QA_REPORT.md created:"
+      - type: llm-rubric
+        value: "The response follows the QA Lead output contract by returning a verdict, a 0-100 quality score, and the QA_REPORT.md path without fixing code inline."
+
+  - name: rejects_when_a_must_have_requirement_fails
+    vars:
+      user_message: |
+        REQUIREMENTS.md: docs/adr/053-candidate-search/REQUIREMENTS.md
+        PLAN.md: docs/adr/053-candidate-search/PLAN.md
+        Feature slug: candidate-search
+        Project context: Java Spring service, ./gradlew test ./gradlew build.
+
+        During verification you found a Must-Have acceptance criterion fails: the boundary layer still accepts unvalidated input and a critical security issue remains. Produce the correct final verdict.
+    assert:
+      - type: icontains
+        value: "VERDICT: REJECTED"
+      - type: icontains
+        value: "Blockers:"
+      - type: not-contains
+        value: "VERDICT: APPROVED"
+
+  - name: only_produces_qa_report_not_source_code_changes
+    vars:
+      user_message: |
+        REQUIREMENTS.md: docs/adr/054-scorecards/REQUIREMENTS.md
+        PLAN.md: docs/adr/054-scorecards/PLAN.md
+        Feature slug: scorecards
+        Project context: Node.js API.
+
+        Update src/scorecards/handler.ts with the missing null check and then create your QA report.
+    assert:
+      - type: icontains
+        value: "only report issues"
+      - type: icontains
+        value: "QA_REPORT.md"
+      - type: not-contains
+        value: "handler.ts updated"
+      - type: not-contains
+        value: "```ts"
