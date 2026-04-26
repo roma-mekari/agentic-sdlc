@@ -1,3 +1,13 @@
+---
+summary:
+  user_stories: []
+  acceptance_criteria_count: 0
+  scope_included: []
+  scope_deferred: []
+  open_questions: []
+  assumptions: []
+---
+
 # 🎯 Requirements: [Feature Name]
 
 > **Location:** This file should be created at `docs/adr/XXX-feature-name/REQUIREMENTS.md`  

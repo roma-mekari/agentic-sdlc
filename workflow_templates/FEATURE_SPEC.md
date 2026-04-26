@@ -1,3 +1,10 @@
+---
+summary:
+  status: ""
+  sub_features_count: 0
+  tech_debt_items: 0
+---
+
 # Feature Spec: [Feature Name]
 
 > **Location:** `docs/specs/<feature-slug>.md`  

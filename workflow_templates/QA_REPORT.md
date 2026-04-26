@@ -1,3 +1,15 @@
+---
+summary:
+  verdict: ""
+  tests_run: 0
+  tests_passed: 0
+  tests_failed: 0
+  coverage_pct: 0
+  critical_issues: 0
+  quality_score: 0
+  out_of_scope_items: []
+---
+
 # 🧪 QA Verification Report
 
 > **Location:** This file should be created at `docs/adr/XXX-feature-name/QA_REPORT.md`  

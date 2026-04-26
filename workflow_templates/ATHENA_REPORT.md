@@ -1,3 +1,11 @@
+---
+summary:
+  issues_found: 0
+  critical_count: 0
+  agents_affected: []
+  micro_reflections_consumed: 0
+---
+
 # 🦉 Athena Meta-Analysis Report
 
 > **Location:** This file should be created at `docs/athena/YYYY-MM-DD-<slug>.md`  

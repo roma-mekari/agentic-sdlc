@@ -1,3 +1,11 @@
+---
+summary:
+  status: ""
+  key_decision: ""
+  quality_score: 0
+  deferred_items_count: 0
+---
+
 # ADR-XXX: [Short Title]
 
 > **Location:** This file should be created at `docs/adr/XXX-feature-name.md` (main ADR)  

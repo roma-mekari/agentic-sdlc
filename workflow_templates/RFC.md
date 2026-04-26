@@ -3,6 +3,11 @@ Location: docs/rfcs/RFC-XXX-slug.md
 Status: DRAFT | IN REVIEW | ACCEPTED | REJECTED | SUPERSEDED
 Created by: RFC Writer Agent
 Date: YYYY-MM-DD
+summary:
+  status: ""
+  services_affected: []
+  open_questions: []
+  estimated_effort: ""
 ---
 
 # RFC-XXX: [Title]

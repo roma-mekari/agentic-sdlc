@@ -1,0 +1,162 @@
+# PRD Analyst — Detail Sheet
+
+> Loaded on-demand for Medium/Complex tasks. Companion to the compact role card.
+
+## Process
+
+### Step 1 — Parse & Understand
+1. Read the entire PRD carefully.
+2. Identify the core objective: what problem is being solved, for whom, and why now?
+3. Map the PRD's scope: what features/changes are described?
+
+### Step 2 — Completeness Check
+Evaluate the PRD against this checklist.
+
+### Step 3 — Ambiguity Detection
+For each feature/story in the PRD:
+1. Can an engineer implement this without asking clarifying questions? If not, flag the ambiguity.
+2. Are there implicit assumptions that could lead to different interpretations?
+3. Are there contradictions between sections?
+4. Are business rules specified precisely enough to write acceptance tests?
+
+### Step 4 — Feasibility & Risk Assessment
+If an Explorer report is provided:
+1. **Cross-service impact**: Does this feature touch multiple services/repos? List them with impact level.
+2. **Data model changes**: Does this require schema migrations? Breaking changes?
+3. **Integration complexity**: New external API integrations? Event-driven flows?
+4. **Existing patterns**: Does the codebase already have patterns for similar features?
+5. **Tech debt collision**: Does the PRD's scope overlap with known tech debt areas?
+
+If no Explorer report is provided, assess feasibility based on the PRD alone and flag areas where codebase analysis would be needed.
+
+### Step 5 — Scope Risk Analysis
+1. **Scope creep signals**: Features described vaguely ("and more", "etc.", "phase 2") that could expand.
+2. **Hidden complexity**: Features that sound simple but imply significant engineering effort (e.g., "real-time sync", "support all file formats").
+3. **Dependency risks**: External system dependencies, team coordination needs, data migration risks.
+
+### Step 6 — Existing Work Check
+If Jira context or codebase access is available:
+1. Are there existing tickets that overlap with this PRD?
+2. Is there partially-built code for any of these features?
+3. Are there related RFCs or ADRs already in the repo?
+
+### Step 7 — Produce PRD_REVIEW.md
+
+Write the review to `docs/pre-sdlc/PRD_REVIEW-<slug>.md` (create the directory if needed).
+
+## Format Templates
+
+```
+### Ambiguity #N: [Short title]
+- **Location in PRD**: [Section/paragraph reference]
+- **What's unclear**: [Description]
+- **Why it matters**: [Impact if built with wrong assumption]
+- **Suggested resolution**: [What the PM should clarify]
+```
+
+```markdown
+# PRD Review: [PRD Title]
+
+> **Reviewed by:** PRD Analyst Agent
+> **Date:** YYYY-MM-DD
+> **PRD Source:** [Link or "inline"]
+> **Overall Verdict:** ✅ READY FOR SDLC | ⚠️ NEEDS REVISION | ❌ NOT READY
+
+---
+
+## Executive Summary
+[2-3 sentences: Is this PRD ready for engineering? What are the top issues?]
+
+## Completeness Checklist
+[Table from Step 2]
+
+## Ambiguities Found
+[List from Step 3, or "None found"]
+
+## Feasibility Assessment
+### Cross-Service Impact
+| Service/Repo | Impact Level | Changes Needed |
+|-------------|-------------|----------------|
+| [service] | High/Medium/Low | [Brief description] |
+
+### Risk Factors
+| Risk | Severity | Description |
+|------|----------|-------------|
+| [Risk] | High/Medium/Low | [Details] |
+
+## Scope Concerns
+[Scope creep signals, hidden complexity, dependency risks]
+
+## Existing Work
+[Overlapping tickets, partial implementations, related ADRs/RFCs]
+
+## Recommendations
+1. [Specific action item for PM/team to address before SDLC starts]
+2. [Another action item]
+
+## Suggested SDLC Breakdown
+> How this PRD might break down into individual SDLC runs.
+
+| # | Feature Slice | Complexity | Dependencies |
+|---|--------------|------------|--------------|
+| 1 | [Slice name] | Low/Med/High | [What it depends on] |
+```
+
+```
+PRD_REVIEW created: docs/pre-sdlc/PRD_REVIEW-<slug>.md
+Verdict: READY FOR SDLC | NEEDS REVISION | NOT READY
+Ambiguities: X found
+Risks: Y identified
+Suggested SDLC slices: Z
+```
+
+## Classification / Decision Rules
+
+## Completeness Checklist
+
+| Section | Expected | Status |
+|---------|----------|--------|
+| Problem statement | Clear description of the pain point | ✅/❌/⚠️ |
+| Target users | Who benefits and in what context | ✅/❌/⚠️ |
+| Success metrics | Measurable outcomes | ✅/❌/⚠️ |
+| User flows / stories | Step-by-step scenarios | ✅/❌/⚠️ |
+| Acceptance criteria | Testable conditions per feature | ✅/❌/⚠️ |
+| Edge cases | Error states, boundary conditions | ✅/❌/⚠️ |
+| Non-functional requirements | Performance, security, scalability | ✅/❌/⚠️ |
+| Dependencies | External systems, data sources, APIs | ✅/❌/⚠️ |
+| Out of scope | Explicitly excluded items | ✅/❌/⚠️ |
+| Timeline / priority | Phase ordering or urgency signals | ✅/❌/⚠️ |
+
+## Feasibility Assessment
+
+If an Explorer report is provided:
+1. **Cross-service impact**: Does this feature touch multiple services/repos? List them with impact level.
+2. **Data model changes**: Does this require schema migrations? Breaking changes?
+3. **Integration complexity**: New external API integrations? Event-driven flows?
+4. **Existing patterns**: Does the codebase already have patterns for similar features?
+5. **Tech debt collision**: Does the PRD's scope overlap with known tech debt areas?
+
+If no Explorer report is provided, assess feasibility based on the PRD alone and flag areas where codebase analysis would be needed.
+
+## Scope Risk Analysis
+
+1. **Scope creep signals**: Features described vaguely ("and more", "etc.", "phase 2") that could expand.
+2. **Hidden complexity**: Features that sound simple but imply significant engineering effort (e.g., "real-time sync", "support all file formats").
+3. **Dependency risks**: External system dependencies, team coordination needs, data migration risks.
+
+## Verdict Rules
+
+| Verdict | Condition |
+|---------|-----------|
+| ✅ READY FOR SDLC | ≤2 low-severity ambiguities, all sections present, no blocking risks |
+| ⚠️ NEEDS REVISION | 3+ ambiguities OR missing critical sections OR medium risks |
+| ❌ NOT READY | Missing problem statement, no acceptance criteria, OR high-severity blocking risks |
+
+## Specialized Protocols
+
+## Existing Work Check
+
+If Jira context or codebase access is available:
+1. Are there existing tickets that overlap with this PRD?
+2. Is there partially-built code for any of these features?
+3. Are there related RFCs or ADRs already in the repo?
