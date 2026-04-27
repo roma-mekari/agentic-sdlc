@@ -131,6 +131,58 @@ git status   # Verify clean state
 git log --oneline -3  # Verify commit landed
 ```
 
+### Step 7: Generate PR Description (If Branch Diverged from Base)
+
+After committing, check if the branch has diverged from its base branch:
+
+```bash
+# Find the base branch
+git remote show origin 2>/dev/null | grep 'HEAD branch'
+git log --oneline main..HEAD 2>/dev/null || git log --oneline master..HEAD 2>/dev/null
+```
+
+If there are commits on this branch not in the base, generate a PR description the human can copy-paste. Gather context:
+
+```bash
+# Full diff of everything on this branch vs base
+git diff main...HEAD --stat
+git log main..HEAD --oneline
+```
+
+**PR description format:**
+
+```markdown
+## What this PR does
+[1-2 paragraphs summarizing the purpose and approach. Written for a reviewer
+who has zero context. Derived from commit messages + diff analysis.]
+
+## Key changes
+| Area | Files | What changed |
+|------|-------|-------------|
+| [Layer/Module] | `path/to/file` | [Brief description] |
+
+## How to review
+[Suggested review order — files to read first for context, then details.
+E.g., "Start with agents/_core.md for the shared contract, then check
+individual role cards for agent-specific changes."]
+
+## Test results
+- **Static validation:** [0 errors, N warnings / skipped — no tests found]
+- **Test suite:** [N passed, M failed / skipped]
+
+## Checklist
+- [ ] Changes are atomic and related to a single concern
+- [ ] No secrets or credentials included
+- [ ] Tests pass (or pre-existing failures noted)
+```
+
+**Rules:**
+- Generate from the **branch diff**, not just the last commit — PRs often contain multiple commits
+- Keep "What this PR does" concise — reviewers scan this first
+- "How to review" should suggest a reading order, not just list files
+- Include test results from Step 3
+- If the branch has only 1 commit, the PR description can be shorter (skip the table if trivial)
+
 ## Safety Rules
 
 1. **NEVER** `git add .` / `git add -A` / `git commit -a`
@@ -185,4 +237,12 @@ Branch: <branch>
 Files: <count> changed (<insertions>+, <deletions>-)
 Tests: passed / skipped (no tests found)
 Unstaged: <count> unrelated files remain
+```
+
+If the branch has diverged from base, ALSO output:
+```
+📋 PR Description (copy-paste ready):
+---
+[Generated PR description from Step 7]
+---
 ```
