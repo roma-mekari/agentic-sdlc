@@ -4,10 +4,14 @@ Status: DRAFT | APPROVED | REVISED
 Created by: Architect Agent
 Reviewed by: CTO Agent
 Date: YYYY-MM-DD
----
-
-# 🏗️ Implementation Plan: [Feature Name]
-
+summary:
+  chosen_approach: ""
+  phases_count: 0
+  files_to_create: []
+  files_to_modify: []
+  feature_flags_needed: false
+  risk_level: ""
+  key_design_decisions: []
 ---
 
 ## 1. Architectural Context

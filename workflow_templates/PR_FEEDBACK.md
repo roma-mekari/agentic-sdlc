@@ -1,3 +1,17 @@
+---
+summary:
+  total_comments: 0
+  actionable: 0
+  informational: 0
+  categories_breakdown:
+    REQ_GAP: 0
+    ARCH_CONCERN: 0
+    CODE_FIX: 0
+    STYLE_NIT: 0
+    QUESTION: 0
+    OUT_OF_SCOPE: 0
+---
+
 # 🔀 PR Feedback Resolution
 
 > **Location:** This file should be created at `docs/adr/XXX-feature-name/PR_FEEDBACK.md`

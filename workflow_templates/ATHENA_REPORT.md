@@ -1,11 +1,24 @@
-# 🦉 Athena Meta-Analysis Report
+---
+summary:
+  issues_found: 0
+  critical_count: 0
+  agents_affected: []
+  micro_reflections_consumed: 0
+  patches_proposed: 0
+  patches_applied: 0
+  patches_auto_applied: 0
+  evolution_status: ""
+---
 
-> **Location:** This file should be created at `docs/athena/YYYY-MM-DD-<slug>.md`  
-> **Analyzed by:** Athena Meta-Architect Agent  
+# 🦉 Athena Evolution Report
+
+> **Location:** This file should be created at `docs/athena/reports/YYYY-MM-DD-<slug>.md`  
+> **Analyzed by:** Athena Evolution Engine  
 > **Date:** YYYY-MM-DD  
 > **Trigger:** [Manual | Auto-triggered after QA rejection cycle N | Auto-triggered after reflection accumulation (N reflections for agent X)]  
 > **Analyzed Run:** [Feature slug or description of the workflow run]  
-> **Micro-reflections consumed:** X entries from `docs/athena/reflections.jsonl`
+> **Micro-reflections consumed:** X entries from `docs/athena/reflections.jsonl`  
+> **Evolution ledger entries:** X total (Y active, Z reverted)
 
 ---
 
@@ -53,13 +66,19 @@ _(Repeat the above structure for each issue)_
 
 ---
 
-## 🔧 Proposed Instruction Changes
+## 🔧 Applicable Patches
 
-### Change 1: [Agent Name] — [Brief description]
+> Each patch is a concrete, apply-ready change. Athena can auto-apply MEDIUM/LOW patches after trust threshold. CRITICAL/HIGH always require human approval.
+
+### Patch 1: `[ATH-YYYYMMDD-001]` — [Agent Name] — [Brief description]
 
 **Severity:** CRITICAL | HIGH | MEDIUM | LOW
 
-**File:** `agents/[agent-name].agent.md`
+**Target:** `agents/[agent-name].agent.md` | `agents/_detail/[name].md` | `agents/_core.md`
+
+**Signal IDs:** REF-XXX, REF-YYY
+
+**Previous attempts:** [Check evolution ledger — has this been tried before? Outcome?]
 
 **Before:**
 ```markdown
@@ -73,11 +92,40 @@ _(Repeat the above structure for each issue)_
 
 **Rationale:** [Why this change prevents the identified failure]
 
+**Risk:** [What could break]
+
+**Auto-apply eligibility:** [Eligible after N clean runs / Requires human approval]
+
 ---
 
-### Change N: [Agent Name] — [Brief description]
+### Patch N: `[ATH-YYYYMMDD-NNN]` — [Agent Name] — [Brief description]
 
 _(Repeat the above structure for each proposed change)_
+
+---
+
+## 🧬 Evolution Ledger Updates
+
+> Changes to the evolution ledger from this analysis.
+
+### New Entries
+
+| Patch ID | Target | Issue | Severity | Status |
+|----------|--------|-------|----------|--------|
+| ATH-YYYYMMDD-001 | [file] | [issue] | [sev] | Proposed |
+
+### Status Updates (from previous runs)
+
+| Patch ID | Previous Status | New Status | Reason |
+|----------|----------------|------------|--------|
+| ATH-YYYYMMDD-XXX | Applied | Verified | N clean runs since application |
+| ATH-YYYYMMDD-XXX | Applied | Regressed | N regressions detected in runs |
+
+### Pattern Library Updates
+
+| Pattern ID | Category | Symptom | Fix Approach | Success Rate |
+|------------|----------|---------|-------------|-------------|
+| PAT-XXX-001 | [category] | [symptom] | [fix] | N/N |
 
 ---
 
@@ -180,9 +228,15 @@ _(If no self-improvement needed, state: "No self-improvement proposals. Current 
 
 ## Action Items
 
-| # | Action | Agent | Severity | Status |
-|---|--------|-------|----------|--------|
-| 1 | [Specific change to make] | [Agent name] | CRITICAL | ⬜ Pending human review |
-| 2 | [Specific change to make] | [Agent name] | HIGH | ⬜ Pending human review |
+| # | Patch ID | Action | Target | Severity | Approval | Status |
+|---|----------|--------|--------|----------|----------|--------|
+| 1 | ATH-YYYYMMDD-001 | [Description] | [File] | CRITICAL | Required | ⬜ Pending |
+| 2 | ATH-YYYYMMDD-002 | [Description] | [File] | MEDIUM | Auto-eligible after 3 runs | ⬜ Pending |
 
-> **Reminder:** All changes are advisory. A human must review and apply each proposed instruction change.
+### Approval Instructions
+
+For each pending item:
+- **"Apply ATH-XXX"** → Athena applies the patch immediately and updates the ledger
+- **"Defer ATH-XXX"** → Patch stays proposed, will be reconsidered in next analysis
+- **"Reject ATH-XXX"** → Patch is marked rejected in the ledger, won't be re-proposed for the same issue
+- **"Auto-apply all MEDIUM/LOW"** → Athena applies all eligible patches and reports results

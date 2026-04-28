@@ -161,7 +161,7 @@ Add to `.github/copilot/settings.json` in your repo:
 | **QA Lead** | Verifies implementation, produces QA reports with test playbooks and backyard API suggestions | No |
 | **Tech Writer** | Drafts ADR + PR description, finalizes ADR post-merge, maintains feature specs | No |
 | **PR Reviewer** | Classifies PR feedback and routes fixes to the right agent | No |
-| **Athena** | Reflects on feedback events, routes findings to agent improvements or engineering principles | Yes |
+| **Athena** | Evolution engine: diagnoses failures, proposes/applies instruction patches, tracks outcomes, and evolves the workflow across runs | Yes |
 | **Explorer** | Read-only codebase investigator for tracing code paths, patterns, and tech debt | Yes |
 
 ## Quick Start
@@ -246,9 +246,9 @@ After Stage 3, the orchestrator prompts you to open a PR. Once you receive revie
 ```
 agentic-sdlc/
 ├── plugin.json                  # Plugin manifest
-├── agents/                      # Agent definitions
+├── agents/                      # Self-contained agent definitions
 │   ├── dev.agent.md                  # General-purpose: plan → implement → verify loop
-│   ├── sdlc-orchestrator.agent.md
+│   ├── sdlc-orchestrator.agent.md    # Full SDLC workflow coordinator
 │   ├── po.agent.md
 │   ├── architect.agent.md
 │   ├── cto.agent.md
@@ -258,15 +258,20 @@ agentic-sdlc/
 │   ├── pr-reviewer.agent.md
 │   ├── athena.agent.md
 │   ├── explorer.agent.md
-│   ├── prd-analyst.agent.md       # Pre-SDLC: PRD review
-│   ├── rfc-writer.agent.md        # Pre-SDLC: Technical RFC
-│   └── estimator.agent.md         # Pre-SDLC: Story point estimation
+│   ├── prd-analyst.agent.md         # Pre-SDLC: PRD review
+│   ├── rfc-writer.agent.md          # Pre-SDLC: Technical RFC
+│   └── estimator.agent.md           # Pre-SDLC: Story point estimation
+├── docs/
+│   └── architecture/
+│       └── _core.md                  # Authoring reference (shared rules, not loaded at runtime)
 ├── skills/                      # Plugin skills
-│   └── init-workspace/
-│       └── SKILL.md             # Scaffolds workspace for SDLC workflow
+│   ├── init-workspace/
+│   │   └── SKILL.md                  # Scaffolds workspace for SDLC workflow
+│   └── contextual-commit/
+│       └── SKILL.md                  # Smart contextual git commit workflow
 └── workflow_templates/          # Source templates (copied to workspace .github/)
-    ├── REQUIREMENTS.md
-    ├── PLAN.md
+    ├── REQUIREMENTS.md               # All templates include YAML summary frontmatter
+    ├── PLAN.md                       # for summary-first reading
     ├── QA_REPORT.md
     ├── ADR.md
     ├── ATHENA_REPORT.md
@@ -277,17 +282,21 @@ agentic-sdlc/
 
 ## How Athena Works
 
-Athena is the continuous improvement meta-agent, operating in four modes:
+Athena is the workflow evolution engine, operating in six modes:
 
-**Micro-reflections (frequent):** After every human "Refine" feedback or PR feedback round, Athena captures what the feedback reveals. Classifies findings as either agent/workflow improvements (logged to `docs/athena/reflections.jsonl`) or engineering principles (written to `/memories/repo/engineering-principles/`).
+**Micro-reflections (frequent):** After every human "Refine" feedback or PR feedback round, Athena captures the root signal. Classifies findings and writes to `docs/athena/reflections.jsonl`. Updates the pattern library with new failure patterns.
 
-**Full reports (infrequent):** Triggered manually, after 2+ QA rejections, or when 5+ micro-reflections accumulate for the same agent. Produces a full diagnostic with root cause analysis and proposed instruction changes.
+**Full reports (infrequent):** Triggered manually, after 2+ QA rejections, or when 5+ micro-reflections accumulate. Produces a diagnostic with **applicable patches** (concrete before/after instruction changes with patch IDs).
 
-**Post-run analysis:** Triggered after every completed SDLC run to analyze TRACE.jsonl health metrics — delegation counts, human gate compliance, violation detection.
+**Post-run analysis:** After every completed SDLC run, analyzes TRACE.jsonl health metrics and compares against historical baselines to detect regressions.
 
-**Session analysis:** Parse exported chat sessions (chat.json) via the `parse-session` skill to detect delegation violations, thinking trace bypasses, and workflow compliance issues. The most powerful diagnostic mode.
+**Session analysis:** Parse exported chat sessions (chat.json) via the `parse-session` skill to detect delegation violations, thinking trace bypasses, and workflow compliance issues.
 
-Athena is **advisory only** — it never edits agent files directly.
+**Evolve mode:** Applies approved instruction patches to agent files. Updates the evolution ledger (`docs/athena/evolution/LEDGER.jsonl`) with every change and its outcome.
+
+**Self-heal mode:** Reverts patches that cause regressions (detected via post-run analysis).
+
+Athena is **autonomous with human gates** — it can apply instruction changes automatically after earning trust (consecutive clean runs), but CRITICAL/HIGH changes always require human approval. Every change is tracked in the evolution ledger with lifecycle: proposed → applied → verified/regressed → reverted.
 
 ## Design Principles
 
@@ -300,4 +309,4 @@ Athena is **advisory only** — it never edits agent files directly.
 - **Post-merge documentation:** Tech Writer drafts ADR before PR review (reducing post-merge interaction) and finalizes after merge
 - **Artifact trail:** Every feature produces REQUIREMENTS.md → PLAN.md → Code → QA_REPORT.md → ADR.md, with deferred items tracked across artifacts
 - **Drift detection:** QA Lead checks if the implementation matches the plan; deviations are documented
-- **Deferred items tracking:** Out-of-scope feedback flows from PR_FEEDBACK → QA_REPORT → ADR, with priority and impact assessment
+- **Self-contained agents:** Each agent file carries all rules it needs — no runtime dependency on external instruction files. Works in any implementing repo without cross-workspace file reads.

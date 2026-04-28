@@ -301,15 +301,23 @@ def validate_sections(agent: AgentFile) -> list[Finding]:
             Finding("ERROR", agent.name, "sections", "Missing 'Role Boundary' section")
         )
 
-    # Non-explorer agents must have Invocation Verification
+    # Non-explorer agents must have invocation verification (accepts several headings)
     if agent.name != "Explorer":
-        if "Invocation Verification" not in body:
+        has_verification = any(
+            phrase in body
+            for phrase in [
+                "Invocation Verification",
+                "Verification Before Starting",
+                "Core Contract",
+            ]
+        )
+        if not has_verification:
             findings.append(
                 Finding(
                     "WARNING",
                     agent.name,
                     "sections",
-                    "Missing 'Invocation Verification' section (recommended for all non-explorer agents)",
+                    "Missing invocation verification section (expected one of: 'Invocation Verification', 'Verification Before Starting', 'Core Contract')",
                 )
             )
 
