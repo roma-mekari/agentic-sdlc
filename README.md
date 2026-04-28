@@ -246,15 +246,9 @@ After Stage 3, the orchestrator prompts you to open a PR. Once you receive revie
 ```
 agentic-sdlc/
 ├── plugin.json                  # Plugin manifest
-├── agents/                      # Agent definitions (two-layer architecture)
-│   ├── _core.md                      # Shared runtime contract (~500 tokens, always loaded)
-│   ├── _detail/                      # On-demand detail sheets (loaded for Medium/Complex tasks)
-│   │   ├── architect.md
-│   │   ├── athena.md
-│   │   ├── ... (one per agent)
-│   │   └── sdlc-orchestrator.md
+├── agents/                      # Self-contained agent definitions
 │   ├── dev.agent.md                  # General-purpose: plan → implement → verify loop
-│   ├── sdlc-orchestrator.agent.md    # Compact role cards (~250-350 tokens each)
+│   ├── sdlc-orchestrator.agent.md    # Full SDLC workflow coordinator
 │   ├── po.agent.md
 │   ├── architect.agent.md
 │   ├── cto.agent.md
@@ -267,6 +261,9 @@ agentic-sdlc/
 │   ├── prd-analyst.agent.md         # Pre-SDLC: PRD review
 │   ├── rfc-writer.agent.md          # Pre-SDLC: Technical RFC
 │   └── estimator.agent.md           # Pre-SDLC: Story point estimation
+├── docs/
+│   └── architecture/
+│       └── _core.md                  # Authoring reference (shared rules, not loaded at runtime)
 ├── skills/                      # Plugin skills
 │   ├── init-workspace/
 │   │   └── SKILL.md                  # Scaffolds workspace for SDLC workflow
@@ -274,7 +271,7 @@ agentic-sdlc/
 │       └── SKILL.md                  # Smart contextual git commit workflow
 └── workflow_templates/          # Source templates (copied to workspace .github/)
     ├── REQUIREMENTS.md               # All templates include YAML summary frontmatter
-    ├── PLAN.md                       # for summary-first reading (Pillar 2 token efficiency)
+    ├── PLAN.md                       # for summary-first reading
     ├── QA_REPORT.md
     ├── ADR.md
     ├── ATHENA_REPORT.md
@@ -312,4 +309,4 @@ Athena is **autonomous with human gates** — it can apply instruction changes a
 - **Post-merge documentation:** Tech Writer drafts ADR before PR review (reducing post-merge interaction) and finalizes after merge
 - **Artifact trail:** Every feature produces REQUIREMENTS.md → PLAN.md → Code → QA_REPORT.md → ADR.md, with deferred items tracked across artifacts
 - **Drift detection:** QA Lead checks if the implementation matches the plan; deviations are documented
-- **Token-efficient architecture:** Two-layer instructions (compact role cards + on-demand detail sheets) with summary-first artifact reading, output compression, and context deduplication
+- **Self-contained agents:** Each agent file carries all rules it needs — no runtime dependency on external instruction files. Works in any implementing repo without cross-workspace file reads.
