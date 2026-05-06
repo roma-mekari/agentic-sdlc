@@ -1,0 +1,52 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "${PLUGIN_ROOT}/scripts/trace_hook.sh SessionStart"
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "${PLUGIN_ROOT}/scripts/trace_hook.sh UserPromptSubmit"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "${PLUGIN_ROOT}/scripts/trace_hook.sh PreToolUse"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "type": "command",
+        "command": "${PLUGIN_ROOT}/scripts/trace_hook.sh PostToolUse"
+      }
+    ],
+    "PreCompact": [
+      {
+        "type": "command",
+        "command": "${PLUGIN_ROOT}/scripts/trace_hook.sh PreCompact"
+      }
+    ],
+    "SubagentStart": [
+      {
+        "type": "command",
+        "command": "${PLUGIN_ROOT}/scripts/trace_hook.sh SubagentStart"
+      }
+    ],
+    "SubagentStop": [
+      {
+        "type": "command",
+        "command": "${PLUGIN_ROOT}/scripts/trace_hook.sh SubagentStop"
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "${PLUGIN_ROOT}/scripts/trace_hook.sh Stop"
+      }
+    ]
+  }
+}
