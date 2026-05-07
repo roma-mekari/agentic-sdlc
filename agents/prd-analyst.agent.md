@@ -177,3 +177,5 @@ Ambiguities: X found
 Risks: Y identified
 Suggested SDLC slices: Z
 ```
+
+template source: agentic-sdlc/workflow_templates

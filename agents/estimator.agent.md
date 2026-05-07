@@ -201,3 +201,5 @@ Stories: N items
 Confidence: High/Medium/Low
 Cannot estimate: M items (need clarification)
 ```
+
+template source: agentic-sdlc/workflow_templates

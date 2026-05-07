@@ -135,3 +135,5 @@ Quality Score: XX/100
 QA_REPORT.md created: docs/adr/XXX-<feature-slug>/QA_REPORT.md
 Blockers: <only if REJECTED — list specifically>
 ```
+
+template source: agentic-sdlc/workflow_templates

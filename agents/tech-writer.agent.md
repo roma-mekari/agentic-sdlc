@@ -248,3 +248,5 @@ Sub-features documented: [list]
 Sections needing manual review: [list]
 Status: Draft (needs human review)
 ```
+
+template source: agentic-sdlc/workflow_templates

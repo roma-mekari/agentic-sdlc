@@ -1,7 +1,7 @@
 ---
 name: "SDLC Orchestrator"
 description: "Entry point for autonomous feature development. Drives features through Planning, Implementation, PR Review, and Post-Merge Documentation. Delegates to specialist subagents with human decision-making at every stage."
-tools: [agent, todo, read, search, edit, vscode/askQuestions]
+tools: [vscode, execute, read, agent, edit, search, web, browser, 'context7-mcp/*', 'memory-mcp/*', 'serena/*', todo]
 argument-hint: "Describe the feature or task to build, and optionally provide a PRD or OpenAPI spec link."
 user-invocable: true
 agents: ["*"]
@@ -444,3 +444,5 @@ Before using ANY tool, ask yourself:
 - `semantic_search` → ❌ Specialist action → delegate to explorer
 
 **When in doubt, delegate.**
+
+template source: agentic-sdlc/workflow_templates

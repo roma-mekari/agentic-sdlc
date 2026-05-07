@@ -156,3 +156,5 @@ Revision cycle: <N>
 Chosen approach: [name]
 Key design decisions: <brief bullet points>
 ```
+
+template source: agentic-sdlc/workflow_templates

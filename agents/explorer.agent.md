@@ -145,3 +145,5 @@ Return a structured report:
 - **DO NOT** search for the same term with different tools — pick the right tool first.
 - **DO NOT** output raw file contents. Summarize and reference by path + line number.
 - **DO NOT** spend more than 3 search attempts finding a file. If it doesn't exist, report that.
+
+template source: agentic-sdlc/workflow_templates

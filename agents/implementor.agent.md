@@ -106,3 +106,5 @@ Test results: <pass/fail summary>
 ```
 
 If any test fails after 2 attempts to fix it, report the failure and stop. Do not guess at a fix that contradicts the plan.
+
+template source: agentic-sdlc/workflow_templates
