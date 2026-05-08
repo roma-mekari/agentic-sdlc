@@ -237,6 +237,14 @@ Add to `.github/copilot/settings.json` in your repo:
 
 ## Quick Start
 
+### 0. Maintain this repo itself
+
+```
+@workflow-engineer Tighten the Dev agent's clarification flow, add boundary coverage, and sync the readmes.
+```
+
+The Workflow Engineer is the preferred driver when you are changing this repository's own agents, skills, workflow templates, tests, or docs. It lives only in `.github/agents/workflow-engineer.agent.md` in this repository, so it is not shipped as part of the distributable plugin agent set and does not get copied into implementation repositories by the standard `agents/*.agent.md` flows. It stays scoped to the instructions-based workflow surfaces, asks efficient clarification questions up front, treats test and README updates as part of done, and always ends by asking for user input.
+
 ### 1. Everyday development (no ceremony)
 
 ```

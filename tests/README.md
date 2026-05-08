@@ -31,6 +31,7 @@ npm install -g promptfoo
 export ANTHROPIC_API_KEY=sk-ant-...
 
 # Run individual agent tests
+promptfoo eval -c tests/behavioral/workflow-engineer.boundary.yaml
 promptfoo eval -c tests/behavioral/architect.boundary.yaml
 promptfoo eval -c tests/behavioral/cto.boundary.yaml
 promptfoo eval -c tests/behavioral/po.boundary.yaml

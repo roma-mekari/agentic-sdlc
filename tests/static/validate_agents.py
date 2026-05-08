@@ -102,6 +102,18 @@ AGENT_TOOL_RULES = {
         "must_not_have": ["edit", "execute"],
         "reason": "Estimator sizes work, does not implement",
     },
+    "Workflow Engineer": {
+        "must_have": [
+            "read",
+            "edit",
+            "search",
+            "execute",
+            "agent",
+            "vscode/askQuestions",
+            "todo",
+        ],
+        "reason": "Workflow Engineer is the repo-scoped driver for agent and instruction workflow work and must be able to clarify, implement, and validate.",
+    },
 }
 
 # User-invocable expectations
@@ -113,6 +125,7 @@ USER_INVOCABLE_AGENTS = {
     "Estimator",
     "Athena",
     "Explorer",
+    "Workflow Engineer",
 }
 
 # Delegation targets (agents that orchestrator should be able to delegate to)
@@ -555,6 +568,7 @@ def format_findings(findings: list[Finding]) -> str:
 def main():
     repo_root = Path(__file__).resolve().parent.parent.parent
     default_agents = repo_root / "agents"
+    repo_local_agents = repo_root / ".github" / "agents"
     default_templates = repo_root / "workflow_templates"
     default_skills = repo_root / "skills"
 
@@ -586,10 +600,18 @@ def main():
 
     all_findings: list[Finding] = []
 
-    # Parse all agents
-    agent_files = sorted(args.agents_dir.glob("*.agent.md"))
+    # Parse all shipped agents plus any repo-local agents that live only in this repository.
+    agent_dirs = [args.agents_dir]
+    if args.agents_dir == default_agents and repo_local_agents.exists():
+        agent_dirs.append(repo_local_agents)
+
+    agent_files: list[Path] = []
+    for agent_dir in agent_dirs:
+        agent_files.extend(sorted(agent_dir.glob("*.agent.md")))
+
     if not agent_files:
-        print(f"❌ No .agent.md files found in {args.agents_dir}")
+        searched = ", ".join(str(agent_dir) for agent_dir in agent_dirs)
+        print(f"❌ No .agent.md files found in {searched}")
         sys.exit(1)
 
     agents: list[AgentFile] = []
@@ -604,7 +626,8 @@ def main():
             continue
         agents.append(agent)
 
-    print(f"Validating {len(agents)} agents from {args.agents_dir}...\n")
+    searched = ", ".join(str(agent_dir) for agent_dir in agent_dirs)
+    print(f"Validating {len(agents)} agents from {searched}...\n")
 
     # Per-agent validation
     for agent in agents:
