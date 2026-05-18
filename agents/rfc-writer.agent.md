@@ -117,3 +117,5 @@ Key decisions: N (requiring team input)
 Open questions: M
 Services affected: [list]
 ```
+
+template source: agentic-sdlc/workflow_templates

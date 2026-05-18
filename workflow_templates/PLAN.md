@@ -141,3 +141,5 @@ curl -X [METHOD] http://localhost:[PORT]/api/v1/[path] \
 - [ ] Implementation started
 
 **Next Step:** Architect to request CTO review. Upon approval, request Human commit before Implementor starts.
+
+template source: agentic-sdlc/workflow_templates

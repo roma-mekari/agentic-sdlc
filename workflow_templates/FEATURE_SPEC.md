@@ -77,3 +77,5 @@
 ---
 
 *This spec is the living truth for [feature name]. Individual ADRs document why changes were made; this document reflects the current state.*
+
+template source: agentic-sdlc/workflow_templates

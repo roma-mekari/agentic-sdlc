@@ -104,3 +104,5 @@ Total comments: <count>
 Requires re-verification: YES | NO
 Estimated resolution stages: <list of agents to invoke in order>
 ```
+
+template source: agentic-sdlc/workflow_templates

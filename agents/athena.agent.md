@@ -355,3 +355,5 @@ Micro-reflections consumed: <count>
 Self-improvement proposals: <count>
 Delegation violations: <count> (session analysis only)
 ```
+
+template source: agentic-sdlc/workflow_templates

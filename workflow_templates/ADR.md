@@ -163,3 +163,5 @@ These can be addressed in future ADRs if business value is identified.
 ---
 
 *This ADR documents [one-sentence summary of the decision]. The decision was made to [primary objective] while [key constraints or principles maintained].*
+
+template source: agentic-sdlc/workflow_templates

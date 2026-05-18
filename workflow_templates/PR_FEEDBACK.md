@@ -123,3 +123,5 @@ The following agents will be invoked in order to resolve all actionable feedback
 - [ ] QA re-verification passed (if required)
 - [ ] ADR updated (if material changes were made)
 - [ ] PR approved and ready to merge
+
+template source: agentic-sdlc/workflow_templates

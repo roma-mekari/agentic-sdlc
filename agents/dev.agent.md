@@ -1,7 +1,7 @@
 ---
 name: "Dev"
 description: "General-purpose development agent for everyday tasks. Plans with subagents, implements directly, verifies with parallel security + test subagents, and loops until clean. Use instead of the full SDLC Orchestrator when you don't need ceremony (ADRs, REQUIREMENTS.md, etc.) but still want quality guardrails."
-tools: [agent, read, edit, search, execute, vscode/askQuestions, todo]
+tools: [vscode, execute, read, agent, edit, search, web, browser, 'context7-mcp/*', 'memory-mcp/*', 'serena/*', todo]
 argument-hint: "Describe the task, bug fix, or feature to implement."
 user-invocable: true
 agents: ["*"]
@@ -236,3 +236,5 @@ When both reviews are clean:
 - **Verification fix loop**: Max 3 cycles. After that, present remaining issues and ask the human.
 - **Plan revision loop**: Max 3 revisions. If the human keeps changing direction, suggest stepping back to clarify the goal.
 - **Scope creep**: If the task grows significantly during implementation, pause and re-plan. Don't silently expand scope.
+
+template source: agentic-sdlc/workflow_templates

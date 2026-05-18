@@ -1,0 +1,119 @@
+{
+  "artifact_requirements": {
+    "po": {
+      "required": [
+        {
+          "name": "REQUIREMENTS.md",
+          "path_pattern": "docs/adr/*/REQUIREMENTS.md",
+          "min_size_bytes": 100,
+          "required_sections": ["## Requirements", "## User Stories", "## Acceptance Criteria"]
+        }
+      ],
+      "optional": []
+    },
+    "architect": {
+      "required": [
+        {
+          "name": "PLAN.md",
+          "path_pattern": "docs/adr/*/PLAN.md",
+          "min_size_bytes": 100,
+          "required_sections": ["## Design Approach", "## Trade-offs", "## Implementation Plan"]
+        }
+      ],
+      "optional": []
+    },
+    "cto": {
+      "required": [
+        {
+          "name": "PLAN.md (CTO approval)",
+          "path_pattern": "docs/adr/*/PLAN.md",
+          "min_size_bytes": 100,
+          "validation": "contains_approval"
+        }
+      ],
+      "optional": []
+    },
+    "implementor": {
+      "required": [
+        {
+          "name": "Implementation Code",
+          "path_pattern": "src/**/*.ts|src/**/*.js|src/**/*.py|lib/**/*.ts|lib/**/*.js|lib/**/*.py",
+          "min_files": 1,
+          "min_total_size_bytes": 100
+        }
+      ],
+      "optional": [
+        {
+          "name": "Tests",
+          "path_pattern": "**/*test*.ts|**/*test*.js|**/*test*.py|tests/**/*.ts|tests/**/*.js|tests/**/*.py",
+          "min_files": 0
+        }
+      ]
+    },
+    "qa-lead": {
+      "required": [
+        {
+          "name": "QA_REPORT.md",
+          "path_pattern": "docs/adr/*/QA_REPORT.md",
+          "min_size_bytes": 100,
+          "required_sections": ["## Test Results", "## Quality Metrics", "## Issues Found"]
+        }
+      ],
+      "optional": []
+    },
+    "tech-writer": {
+      "required": [
+        {
+          "name": "ADR.md",
+          "path_pattern": "docs/adr/*/ADR.md",
+          "min_size_bytes": 100,
+          "required_sections": ["## Context", "## Decision", "## Consequences"]
+        }
+      ],
+      "optional": [
+        {
+          "name": "PR Description",
+          "path_pattern": ".github/pr_description.md",
+          "min_size_bytes": 50
+        },
+        {
+          "name": "Feature Spec",
+          "path_pattern": "docs/FEATURE_SPEC.md",
+          "min_size_bytes": 100
+        }
+      ]
+    },
+    "pr-reviewer": {
+      "required": [
+        {
+          "name": "PR Feedback",
+          "path_pattern": "docs/adr/*/PR_FEEDBACK.md",
+          "min_size_bytes": 50
+        }
+      ],
+      "optional": []
+    },
+    "athena": {
+      "required": [],
+      "optional": [
+        {
+          "name": "Athena Report",
+          "path_pattern": "docs/athena/run-health/*.md",
+          "min_size_bytes": 100
+        }
+      ]
+    },
+    "explorer": {
+      "required": [],
+      "optional": []
+    }
+  },
+  "validation_settings": {
+    "fail_on_missing_required": true,
+    "fail_on_invalid_content": true,
+    "fail_on_missing_sections": true,
+    "warn_on_missing_optional": true,
+    "create_validation_report": true,
+    "report_path": ".agentic-sdlc/state/validation_reports"
+  }
+}

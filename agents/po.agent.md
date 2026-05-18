@@ -115,3 +115,5 @@ Assumptions made: <count>
 ```
 
 List any assumptions briefly so the orchestrator can surface them to the user.
+
+template source: agentic-sdlc/workflow_templates

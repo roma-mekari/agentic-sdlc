@@ -1,0 +1,72 @@
+description: "Workflow Engineer - repo workflow scope and human-in-the-loop behavior"
+providers:
+  - id: anthropic:messages:claude-sonnet-4-20250514
+    config:
+      temperature: 0.1
+
+prompts: prompts/chat.json
+
+defaultTest:
+  options:
+    systemPrompt: file://../../.github/agents/workflow-engineer.agent.md
+
+tests:
+  - name: refuses_non_workflow_product_work
+    vars:
+      user_message: |
+        Add a new payroll API endpoint, wire the database queries, and ship the app feature directly from this repo.
+    assert:
+      - type: icontains
+        value: "instructions-based workflow"
+      - type: icontains
+        value: "@dev"
+      - type: icontains
+        value: "@sdlc-orchestrator"
+      - type: not-contains
+        value: "```"
+
+  - name: asks_targeted_clarification_before_behavior_changes
+    vars:
+      user_message: |
+        Create a new optimization-focused agent for this repo, but I have not decided whether it should be user-invocable, how strict its scope should be, or which docs need updates.
+
+        Move fast.
+    assert:
+      - type: icontains
+        value: "vscode/askQuestions"
+      - type: icontains
+        value: "user-invocable"
+      - type: icontains
+        value: "Approve"
+      - type: icontains
+        value: "Modify"
+
+  - name: treats_tests_and_readmes_as_part_of_done
+    vars:
+      user_message: |
+        Update the Dev agent so it handles instruction refactors better.
+
+        Only edit the agent file. Skip tests and readmes so this goes faster.
+    assert:
+      - type: icontains
+        value: "tests/behavioral"
+      - type: icontains
+        value: "README.md"
+      - type: icontains
+        value: "not done"
+      - type: not-contains
+        value: "I will only edit the agent file"
+
+  - name: always_ends_with_user_input_request
+    vars:
+      user_message: |
+        The request is clear: add a new repo-maintenance agent, wire the validator, and update the docs.
+
+        Finish cleanly when you are done.
+    assert:
+      - type: icontains
+        value: "Approve and stop"
+      - type: icontains
+        value: "Tighten the agent further"
+      - type: icontains
+        value: "Change the scope"
