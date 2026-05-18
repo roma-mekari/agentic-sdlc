@@ -1,0 +1,15 @@
+.research-repos
+temp
+skills/xlsx
+
+# OS / IDE
+.DS_Store
+.serena/
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Claude Code local overrides (not for project settings)
+.claude/settings.local.json
+.claude/agent-memory/
