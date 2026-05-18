@@ -32,7 +32,8 @@ else
     CHANGED=$(git diff --name-only HEAD@{1} HEAD 2>/dev/null || echo "")
 fi
 
-RELEVANT_PATTERNS="agents/ workflow_templates/ skills/ .plugin/ tests/static/validate_agents.py"
+RELEVANT_PATTERNS="agents/ workflow_templates/ skills/ .plugin/ tests/static/validate_agents.py install.sh tests/install/"
+INSTALL_TEST="$REPO_ROOT/tests/install/test_install.sh"
 
 if [ -n "$CHANGED" ]; then
     MATCH=false
@@ -59,3 +60,17 @@ if ! $RUN_CMD; then
 fi
 
 echo "✅ Agent validation passed."
+
+# Install-script tests run whenever install.sh, the test itself, or agents/ change.
+if echo "$CHANGED" | grep -qE '(install\.sh|tests/install/|agents/)'; then
+    echo ""
+    echo "── Running install-script tests ──"
+    if ! bash "$INSTALL_TEST"; then
+        echo ""
+        echo "❌ Install-script tests failed. Fix the issues above before pushing."
+        echo "   Run locally: bash tests/install/test_install.sh"
+        echo "   Bypass:      git push --no-verify"
+        exit 1
+    fi
+    echo "✅ Install-script tests passed."
+fi

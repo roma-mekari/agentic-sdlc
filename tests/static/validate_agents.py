@@ -426,6 +426,86 @@ def validate_user_invocable(agent: AgentFile) -> list[Finding]:
     return findings
 
 
+INSTALL_SCRIPT_TOOL_BRANCH_RE = re.compile(
+    r"^\s*([A-Za-z][A-Za-z0-9/]*)\)\s+echo\s+\"[^\"]+\"\s+;;",
+    re.MULTILINE,
+)
+
+
+def parse_install_script_tools(install_script: Path) -> set[str] | None:
+    """Return the set of Copilot tool tokens mapped in install.sh.
+
+    Parses the `claude_tools_for()` case statement. Returns None if the script
+    is missing or its expected structure cannot be located (treated as ERROR
+    by the caller).
+    """
+    if not install_script.exists():
+        return None
+
+    content = install_script.read_text(encoding="utf-8")
+    start = content.find("claude_tools_for()")
+    if start < 0:
+        return None
+
+    # Find the end of the function body (first '}' after the opening '{').
+    brace_open = content.find("{", start)
+    brace_close = content.find("}", brace_open)
+    if brace_open < 0 or brace_close < 0:
+        return None
+
+    body = content[brace_open:brace_close]
+    return {m.group(1) for m in INSTALL_SCRIPT_TOOL_BRANCH_RE.finditer(body)}
+
+
+def validate_install_script_mapping(install_script: Path) -> list[Finding]:
+    """Cross-check VALID_TOOLS against install.sh's Claude tool mapping.
+
+    Both must list exactly the same Copilot tool names — otherwise an agent
+    using a known-valid tool would either fail at install time (mapping
+    missing) or carry a stale mapping for a retired tool.
+    """
+    findings: list[Finding] = []
+    mapped = parse_install_script_tools(install_script)
+
+    if mapped is None:
+        findings.append(
+            Finding(
+                "ERROR",
+                "install.sh",
+                "install_mapping",
+                f"Could not parse claude_tools_for() in {install_script}",
+            )
+        )
+        return findings
+
+    missing = VALID_TOOLS - mapped
+    extra = mapped - VALID_TOOLS
+
+    for tool in sorted(missing):
+        findings.append(
+            Finding(
+                "ERROR",
+                "install.sh",
+                "install_mapping",
+                f"Copilot tool '{tool}' is in VALID_TOOLS but has no Claude mapping in install.sh",
+                "Add a case branch in claude_tools_for() in install.sh",
+            )
+        )
+
+    for tool in sorted(extra):
+        findings.append(
+            Finding(
+                "WARNING",
+                "install.sh",
+                "install_mapping",
+                f"install.sh maps '{tool}' but it is not in VALID_TOOLS",
+                "Remove the stale branch or add it to VALID_TOOLS in validate_agents.py",
+            )
+        )
+
+    return findings
+
+
 def validate_init_workspace_skill(
     agents_dir: Path, templates_dir: Path, skills_dir: Path
 ) -> list[Finding]:
@@ -557,6 +637,7 @@ def main():
     default_agents = repo_root / "agents"
     default_templates = repo_root / "workflow_templates"
     default_skills = repo_root / "skills"
+    default_install = repo_root / "install.sh"
 
     parser = argparse.ArgumentParser(
         description="Validate Agentic SDLC agent definitions"
@@ -578,6 +659,12 @@ def main():
         type=Path,
         default=default_skills,
         help="Directory containing skills",
+    )
+    parser.add_argument(
+        "--install-script",
+        type=Path,
+        default=default_install,
+        help="Path to install.sh (for tool-mapping cross-check)",
     )
     parser.add_argument(
         "--strict", action="store_true", help="Treat warnings as errors"
@@ -624,6 +711,9 @@ def main():
             args.agents_dir, args.templates_dir, args.skills_dir
         )
     )
+
+    # Install-script mapping consistency
+    all_findings.extend(validate_install_script_mapping(args.install_script))
 
     # Output report
     print(format_findings(all_findings))
