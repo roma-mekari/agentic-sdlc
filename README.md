@@ -48,17 +48,17 @@ User ──► SDLC Orchestrator (auto-discovers pre-SDLC artifacts)
 One bash script handles both targets. Pure bash, no Python or Node required.
 
 ```bash
-git clone https://github.com/roma-mekari/agentic-sdlc.git ~/agentic-sdlc
+git clone https://github.com/roma-mekari/agentic-sdlc.git ~/.agentic-sdlc
 
 # Install into the current project for Claude Code:
-cd ~/my-project && bash ~/agentic-sdlc/install.sh claude
+cd ~/my-project && bash ~/.agentic-sdlc/install.sh claude
 
 # Or for GitHub Copilot:
-cd ~/my-project && bash ~/agentic-sdlc/install.sh copilot
+cd ~/my-project && bash ~/.agentic-sdlc/install.sh copilot
 
 # User-scoped install (no per-repo templates):
-bash ~/agentic-sdlc/install.sh claude  --scope user
-bash ~/agentic-sdlc/install.sh copilot --scope user
+bash ~/.agentic-sdlc/install.sh claude  --scope user
+bash ~/.agentic-sdlc/install.sh copilot --scope user
 ```
 
 What this does:
@@ -67,6 +67,8 @@ What this does:
 - Either target copies `workflow_templates/` into `.github/workflow_templates/` for project scope.
 
 See `bash install.sh --help` for all flags (`--agents`, `--target-dir`, `--no-templates`, `--dry-run`).
+
+> **Optional:** if `yq` is on your `PATH` (either [mikefarah/yq](https://github.com/mikefarah/yq) or [kislyuk/yq](https://github.com/kislyuk/yq)) the installer uses it for YAML parsing. Otherwise it falls back to a pure-awk parser — output is identical either way. Set `INSTALL_SH_NO_YQ=1` to force the fallback.
 
 ### Option B: Copilot plugin install via Command Palette
 
@@ -82,14 +84,14 @@ Then initialize your workspace (see [Workspace Setup](#workspace-setup) below).
 ### Option C: Copilot plugin via local path
 
 ```bash
-git clone https://github.com/roma-mekari/agentic-sdlc.git ~/agentic-sdlc
+git clone https://github.com/roma-mekari/agentic-sdlc.git ~/.agentic-sdlc
 ```
 
 Add to VS Code settings:
 ```json
 {
   "chat.plugins.enabled": true,
-  "chat.plugins.localPaths": ["~/agentic-sdlc"]
+  "chat.plugins.localPaths": ["~/.agentic-sdlc"]
 }
 ```
 
