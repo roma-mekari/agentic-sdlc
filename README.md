@@ -1,6 +1,10 @@
 # Agentic SDLC Workflow
 
-A VS Code Copilot agent plugin that drives features from idea to merged, documented code. Agents advise, humans decide. Install once, use in any project.
+A set of agent definitions that drive features from idea to merged, documented code. Agents advise, humans decide. Install once, use in any project.
+
+**Works with both:**
+- **GitHub Copilot Chat** (VS Code) — first-class plugin, fully supported
+- **Claude Code** — agents generated from the same source via `install.sh`
 
 ## Architecture Overview
 
@@ -39,66 +43,65 @@ User ──► SDLC Orchestrator (auto-discovers pre-SDLC artifacts)
 
 ## Installation
 
-### Option A: Install as Plugin via Command Palette
+### Option A: `install.sh` (recommended for both Copilot and Claude Code)
+
+One bash script handles both targets. Pure bash, no Python or Node required.
+
+```bash
+git clone https://github.com/roma-mekari/agentic-sdlc.git ~/agentic-sdlc
+
+# Install into the current project for Claude Code:
+cd ~/my-project && bash ~/agentic-sdlc/install.sh claude
+
+# Or for GitHub Copilot:
+cd ~/my-project && bash ~/agentic-sdlc/install.sh copilot
+
+# User-scoped install (no per-repo templates):
+bash ~/agentic-sdlc/install.sh claude  --scope user
+bash ~/agentic-sdlc/install.sh copilot --scope user
+```
+
+What this does:
+- **Claude target** writes `*.md` agents to `.claude/agents/` (project) or `~/.claude/agents/` (user), rewriting frontmatter and tool references for Claude Code.
+- **Copilot target** copies `*.agent.md` agents as-is to `.github/agents/` (project) or VS Code's user prompts dir (user).
+- Either target copies `workflow_templates/` into `.github/workflow_templates/` for project scope.
+
+See `bash install.sh --help` for all flags (`--agents`, `--target-dir`, `--no-templates`, `--dry-run`).
+
+### Option B: Copilot plugin install via Command Palette
 
 1. Open the Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`)
 2. Run **Chat: Install Plugin From Source**
-3. Enter the repository URL:
-   ```
-   https://github.com/roma-mekari/agentic-sdlc
-   ```
+3. Enter the repository URL: `https://github.com/roma-mekari/agentic-sdlc`
 4. The plugin's agents and skills are now available in Copilot Chat
 
 Then initialize your workspace (see [Workspace Setup](#workspace-setup) below).
 
 > **Note:** Requires `chat.plugins.enabled` to be `true` in VS Code settings. Agent plugins are a preview feature.
 
-### Option B: Install as Plugin via Manual Clone (Recommended)
-
-1. Clone the repository to a local directory:
-   ```bash
-   git clone https://github.com/roma-mekari/agentic-sdlc.git ~/agentic-sdlc
-   ```
-
-2. Open VS Code Settings (`Cmd+,` / `Ctrl+,`) and add the cloned path to `chat.plugins.localPaths`:
-   ```json
-   {
-     "chat.plugins.enabled": true,
-     "chat.plugins.localPaths": [
-       "~/agentic-sdlc"
-     ]
-   }
-   ```
-
-3. Reload VS Code — all agents and skills are now available in Copilot Chat.
-
-Then initialize your workspace (see [Workspace Setup](#workspace-setup) below).
-
-> **Tip:** This approach makes it easy to `git pull` updates from the repository.
-
-### Option C: Copy to Repository
-
-For teams that can't use plugins:
+### Option C: Copilot plugin via local path
 
 ```bash
-# From your target repository root
-mkdir -p .github/agents .github/workflow_templates
+git clone https://github.com/roma-mekari/agentic-sdlc.git ~/agentic-sdlc
+```
 
+Add to VS Code settings:
+```json
+{
+  "chat.plugins.enabled": true,
+  "chat.plugins.localPaths": ["~/agentic-sdlc"]
+}
+```
+
+Reload VS Code. Easy to `git pull` updates.
+
+### Option D: Manual copy (Copilot, no script)
+
+```bash
+mkdir -p .github/agents .github/workflow_templates
 cp /path/to/agentic-sdlc/agents/*.agent.md .github/agents/
 cp /path/to/agentic-sdlc/workflow_templates/* .github/workflow_templates/
 ```
-
-### Option D: User-Level Prompts
-
-For personal use across all repositories:
-
-```bash
-# macOS / Linux
-cp /path/to/agentic-sdlc/agents/*.agent.md \
-  "$HOME/Library/Application Support/Code/User/prompts/"
-```
-
-You still need `.github/workflow_templates/` per repository.
 
 ## Workspace Setup
 
@@ -241,12 +244,13 @@ After Stage 3, the orchestrator prompts you to open a PR. Once you receive revie
 @athena Analyze the last SDLC run — the implementor kept failing QA on input validation
 ```
 
-## Plugin Structure
+## Repository Structure
 
 ```
 agentic-sdlc/
-├── plugin.json                  # Plugin manifest
-├── agents/                      # Agent definitions
+├── install.sh                   # One-shot installer for copilot|claude targets
+├── .plugin/plugin.json          # Copilot plugin manifest
+├── agents/                      # Agent definitions (canonical source, Copilot format)
 │   ├── dev.agent.md                  # General-purpose: plan → implement → verify loop
 │   ├── sdlc-orchestrator.agent.md
 │   ├── po.agent.md

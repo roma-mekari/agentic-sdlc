@@ -1,6 +1,6 @@
 # Agentic SDLC Test Harness
 
-Three-layer testing system for verifying agent definitions and behavior.
+Four-layer testing system for verifying agent definitions, installation, and behavior.
 
 ## Layer 1: Static Validation (Zero cost, runs in CI)
 
@@ -19,7 +19,26 @@ uv run tests/static/validate_agents.py --agents-dir ./agents --templates-dir ./w
 
 **Prerequisites:** [uv](https://docs.astral.sh/uv/) (recommended) or python3 + pyyaml as fallback.
 
-## Layer 2: Behavioral Tests (LLM cost, manual/scheduled trigger)
+**Also cross-checks** that every Copilot tool in `VALID_TOOLS` has a Claude mapping defined in `install.sh` — drift in either file produces an ERROR.
+
+## Layer 2: Install-Script Tests (Zero cost, runs locally)
+
+Validates `install.sh` produces correct output for both Copilot and Claude targets.
+
+```bash
+bash tests/install/test_install.sh
+```
+
+**What it tests:**
+- Claude target: file naming (`.md`, not `.agent.md`), frontmatter shape (comma-separated tools, `model: inherit`, stripped Copilot-only fields), body substitutions (`vscode/askQuestions` → `AskUserQuestion`, etc.), templates copied
+- Copilot target: identity copy from source, frontmatter preserved
+- Dry-run writes nothing
+- `--agents` filter narrows the install set
+- Error handling: unknown target, bad scope, unknown Copilot tool
+
+Pure bash + standard POSIX tools — no Python, no Node.
+
+## Layer 3: Behavioral Tests (LLM cost, manual/scheduled trigger)
 
 Uses [promptfoo](https://github.com/promptfoo/promptfoo) to verify agents follow their instructions when invoked against a real LLM.
 
@@ -49,7 +68,7 @@ promptfoo eval -c tests/behavioral/red-team/role-escape.yaml
 - Instruction adherence (follows constraints in .agent.md)
 - Adversarial robustness (resists prompt injection)
 
-## Layer 3: Session Analysis (Post-hoc, zero cost)
+## Layer 4: Session Analysis (Post-hoc, zero cost)
 
 Analyzes exported VS Code Copilot chat sessions for workflow compliance.
 
@@ -99,7 +118,9 @@ bash tests/static/setup-hooks.sh
 git push --no-verify
 ```
 
-The hook prefers `uv run` (auto-resolves pyyaml via PEP 723 inline metadata) and falls back to `python3` if pyyaml is already installed. It only runs when files in `agents/`, `workflow_templates/`, `skills/`, `.plugin/`, or `tests/static/validate_agents.py` are included in the push.
+The hook prefers `uv run` (auto-resolves pyyaml via PEP 723 inline metadata) and falls back to `python3` if pyyaml is already installed. It only runs when files in `agents/`, `workflow_templates/`, `skills/`, `.plugin/`, `tests/static/validate_agents.py`, `install.sh`, or `tests/install/` are included in the push.
+
+Install-script tests run alongside static validation when `install.sh`, `tests/install/`, or `agents/` change.
 
 ## Adding Tests for New Agents
 
@@ -108,9 +129,12 @@ The hook prefers `uv run` (auto-resolves pyyaml via PEP 723 inline metadata) and
    - `AGENT_TOOL_RULES` — required/forbidden tools
    - `TEMPLATE_REFS_TO_VALIDATE` — expected template references
    - `USER_INVOCABLE_AGENTS` — if user-invocable
+   - If the agent uses a new Copilot tool, also add it to `VALID_TOOLS` AND add a `claude_tools_for()` branch in `install.sh` (the static validator cross-checks).
 
-2. **Behavioral:** Create `tests/behavioral/<agent-name>.boundary.yaml`:
+2. **Install:** Usually no changes — `tests/install/test_install.sh` is contract-style and applies to every agent. Add an explicit assertion only if the new agent has special transform requirements.
+
+3. **Behavioral:** Create `tests/behavioral/<agent-name>.boundary.yaml`:
    - Define tests for role boundaries, output format, instruction adherence
    - Follow existing test files as templates
 
-3. **Session:** No changes needed — session analysis works generically
+4. **Session:** No changes needed — session analysis works generically
