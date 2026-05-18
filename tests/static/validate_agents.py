@@ -27,6 +27,7 @@ from pathlib import Path
 
 # ── Constants ──────────────────────────────────────────────────────────────────
 
+# Top-level tool names accepted as-is
 VALID_TOOLS = {
     "read",
     "edit",
@@ -36,6 +37,26 @@ VALID_TOOLS = {
     "todo",
     "web",
     "agent",
+    "browser",
+    "vscode",
+}
+
+# Namespaces that allow sub-tool notation (namespace/tool or namespace/*)
+VALID_TOOL_NAMESPACES = {
+    "read",
+    "edit",
+    "search",
+    "execute",
+    "vscode",
+    "web",
+    "agent",
+    "browser",
+    "todo",
+    # MCP tool namespaces
+    "context7-mcp",
+    "memory-mcp",
+    "serena",
+    "mkrmcp",
 }
 
 REQUIRED_FRONTMATTER_FIELDS = {"name", "description", "tools"}
@@ -252,6 +273,21 @@ def validate_frontmatter(agent: AgentFile) -> list[Finding]:
     return findings
 
 
+def _is_valid_tool(tool: str) -> bool:
+    """Return True if tool is a known exact name or a valid namespace/subtool pattern."""
+    if tool in VALID_TOOLS:
+        return True
+    if "/" in tool:
+        namespace = tool.split("/")[0]
+        return namespace in VALID_TOOL_NAMESPACES
+    return False
+
+
+def _has_tool(tools: list, tool_name: str) -> bool:
+    """Return True if tools contains tool_name exactly or any sub-tool of it."""
+    return tool_name in tools or any(t.startswith(f"{tool_name}/") for t in tools)
+
+
 def validate_tools(agent: AgentFile) -> list[Finding]:
     """Validate tool declarations are valid VS Code tool names."""
     findings = []
@@ -260,16 +296,16 @@ def validate_tools(agent: AgentFile) -> list[Finding]:
     if not isinstance(tools, list):
         return findings
 
-    # Check each tool is a known valid name
+    # Check each tool is a known valid name or namespace/subtool
     for tool in tools:
-        if tool not in VALID_TOOLS:
+        if not _is_valid_tool(tool):
             findings.append(
                 Finding(
                     "ERROR",
                     agent.name,
                     "tools",
                     f"Unknown tool: '{tool}'",
-                    f"Valid tools: {sorted(VALID_TOOLS)}",
+                    f"Valid tools: {sorted(VALID_TOOLS)} or namespace/subtool where namespace in {sorted(VALID_TOOL_NAMESPACES)}",
                 )
             )
 
@@ -277,7 +313,7 @@ def validate_tools(agent: AgentFile) -> list[Finding]:
     rules = AGENT_TOOL_RULES.get(agent.name, {})
     if "must_have" in rules:
         for tool in rules["must_have"]:
-            if tool not in tools:
+            if not _has_tool(tools, tool):
                 findings.append(
                     Finding(
                         "ERROR",
@@ -289,7 +325,7 @@ def validate_tools(agent: AgentFile) -> list[Finding]:
                 )
     if "must_not_have" in rules:
         for tool in rules["must_not_have"]:
-            if tool in tools:
+            if _has_tool(tools, tool):
                 findings.append(
                     Finding(
                         "ERROR",
@@ -328,7 +364,7 @@ def validate_sections(agent: AgentFile) -> list[Finding]:
 
     # Agents with edit/execute tools should have Constraints section
     tools = agent.frontmatter.get("tools", [])
-    if ("edit" in tools or "execute" in tools) and "Constraints" not in body:
+    if (_has_tool(tools, "edit") or _has_tool(tools, "execute")) and "Constraints" not in body:
         findings.append(
             Finding(
                 "WARNING",
