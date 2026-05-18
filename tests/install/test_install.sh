@@ -172,6 +172,31 @@ ok "all transformed agents have a tools line"
 rm -rf "$T"
 
 # ─────────────────────────────────────────────────────────────────────────────
+start "yq path matches awk fallback (when yq is available)"
+if command -v yq >/dev/null 2>&1; then
+    A=$(tmpdir); B=$(tmpdir)
+    INSTALL_SH_NO_YQ=1 bash "$INSTALL" claude --target-dir "$A" --no-templates >/dev/null 2>&1
+    bash "$INSTALL" claude --target-dir "$B" --no-templates >/dev/null 2>&1
+
+    if diff -r "$A/.claude/agents" "$B/.claude/agents" >/dev/null; then
+        ok "yq and awk-fallback produce identical output"
+    else
+        fail "yq path diverges from awk fallback"
+        diff -r "$A/.claude/agents" "$B/.claude/agents" | head -20 >&2
+    fi
+
+    # Header line should advertise which parser is in use.
+    hdr_yq=$(bash "$INSTALL" claude --target-dir "$(tmpdir)" --dry-run 2>&1 | grep 'yaml parser' || true)
+    hdr_aw=$(INSTALL_SH_NO_YQ=1 bash "$INSTALL" claude --target-dir "$(tmpdir)" --dry-run 2>&1 | grep 'yaml parser' || true)
+    case "$hdr_yq" in *yq*)  ok  "header reports yq when available" ;; *) fail "header missing yq marker" ;; esac
+    case "$hdr_aw" in *awk*) ok  "header reports awk fallback with INSTALL_SH_NO_YQ=1" ;; *) fail "header missing awk marker" ;; esac
+
+    rm -rf "$A" "$B"
+else
+    ok "skipped (yq not installed on this host)"
+fi
+
+# ─────────────────────────────────────────────────────────────────────────────
 start "Error handling"
 
 # Missing target arg

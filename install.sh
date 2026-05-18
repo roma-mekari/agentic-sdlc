@@ -80,9 +80,41 @@ die()  { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
 
 usage() { sed -n '2,/^set -euo/p' "$0" | sed -e '$d' -e 's/^# \{0,1\}//'; }
 
+# ── yq detection ─────────────────────────────────────────────────────────────
+# yq comes in two flavors with slightly different conventions:
+#   - mikefarah (Go):  `yq '.k'`     prints scalars unquoted
+#   - kislyuk (Python): `yq -r '.k'` prints scalars unquoted (with -r)
+# Probe both. If neither works, or INSTALL_SH_NO_YQ=1, fall back to awk.
+
+YQ_CMD=""   # empty = fall back; otherwise the command (e.g. "yq" or "yq -r")
+
+detect_yq() {
+    if [ "${INSTALL_SH_NO_YQ:-}" = "1" ]; then return 1; fi
+    command -v yq >/dev/null 2>&1 || return 1
+
+    local probe
+    probe=$(printf 'k: x\n' | yq '.k' 2>/dev/null || true)
+    if [ "$probe" = "x" ]; then YQ_CMD="yq"; return 0; fi
+
+    probe=$(printf 'k: x\n' | yq -r '.k' 2>/dev/null || true)
+    if [ "$probe" = "x" ]; then YQ_CMD="yq -r"; return 0; fi
+
+    return 1
+}
+detect_yq || true
+
+# Extract the YAML frontmatter block (between the first pair of `---` lines).
+extract_frontmatter() {
+    awk '/^---[[:space:]]*$/ { c++; if (c == 2) exit; next } c == 1' "$1"
+}
+
 # Pull a single scalar field from frontmatter. Strips surrounding quotes.
 get_field() {
     local file=$1 field=$2
+    if [ -n "$YQ_CMD" ]; then
+        extract_frontmatter "$file" | $YQ_CMD ".${field} // \"\"" 2>/dev/null
+        return
+    fi
     awk -v f="$field" '
         /^---[[:space:]]*$/ { c++; if (c == 2) exit; next }
         c == 1 {
@@ -101,6 +133,10 @@ get_field() {
 # Parse `tools: [a, b, c]` into newline-separated tokens.
 get_tools() {
     local file=$1
+    if [ -n "$YQ_CMD" ]; then
+        extract_frontmatter "$file" | $YQ_CMD '.tools[]' 2>/dev/null
+        return
+    fi
     awk '
         /^---[[:space:]]*$/ { c++; if (c == 2) exit; next }
         c == 1 && /^tools:/ {
@@ -270,6 +306,7 @@ log "Agentic SDLC installer"
 log "  target:        $TARGET"
 log "  scope:         $SCOPE"
 log "  source:        $REPO_ROOT"
+log "  yaml parser:   ${YQ_CMD:-awk (fallback)}"
 log "  agents → $AGENTS_DEST"
 if [ "$SCOPE" = "project" ] && $INSTALL_TEMPLATES; then
     log "  templates → $TARGET_DIR/.github/workflow_templates"
